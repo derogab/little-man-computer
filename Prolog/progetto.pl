@@ -61,3 +61,6 @@ output(Acc, Out, Istr, NewOut) :- Istr is 902,
                                   append(Out, [Acc], NewOut).
 
 term :- halt.
+
+one_instruction(state(Acc, Pc, Mem, In, Out, Flag), X) :-
+    X is state(Acc+10, Pc, Mem, In, Out, Flag)    .

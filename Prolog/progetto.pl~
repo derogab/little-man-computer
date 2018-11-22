@@ -60,4 +60,8 @@ input(Acc, In, Istr, NewIn) :- Istr is 901,
 output(Acc, Out, Istr, NewOut) :- Istr is 902,
                                   append(Out, [Acc], NewOut).
 
-exit :- halt.
+term :- halt.
+
+one_instruction(state(Acc, Pc, Mem, In, Out, Flag), X) :-
+    Acc is Acc+10
+    .
