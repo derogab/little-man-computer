@@ -3,30 +3,45 @@
 /**
  * Addizione
  * 
- * Valore: 1xx
+ * Instruction: 1xx 
+ * 
+ * Somma il contenuto della cella di memoria xx con il valore contenuto 
+ * nell'accumulatore e scrive il valore risultante nell'accumulatore. 
+ * Il valore salvato nell'accumulatore è la somma modulo 1000. 
+ * Se la somma non supera 1000 il flag è impostato ad assente, 
+ * se invece raggiunge o supera 1000 il flag è impostato a presente.
+ *
+ *
+ * MEMO: Pointer contiene il valore già tranciato 
 */
-%pointer valore già tranciato 
 
 addizione(Acc, Pointer, Mem, X, flag) :- nth0(Pointer, Mem, Value, _),
                                     Y is Acc+Value,
                                     X is ((Acc+Value)mod 1000),
-                                    Y > 999,!.
+                                    Y > 999,
+                                    !.
 addizione(Acc, Pointer, Mem, X, noflag) :- nth0(Pointer, Mem, Value, _),
                                       Y is Acc+Value,
                                       X is ((Acc+Value)mod 1000),
                                       Y < 1000.
 
-
 /**
  * Sottrazione
  * 
- * Value: 2xx
+ * Instruction: 2xx
+ *
+ * Sottrae il contenuto della cella di memoria xx dal valore contenuto 
+ * nell'accumulatore e scrive il valore risultante nell'accumulatore. 
+ * Il valore salvato nell'accumulatore è la differenza modulo 1000. 
+ * Se la differenza è inferiore a zero il flag è impostato a presente, 
+ * se invece è positiva o zero il flag è impostato ad assente.
 */
 
 sottrazione(Acc, Pointer, Mem, X, flag) :- nth0(Pointer, Mem, Value, _),
                                       Y is Acc-Value,
                                       X is ((Acc-Value)mod 1000),
-                                      Y < 0,!.
+                                      Y < 0,
+                                      !.
 sottrazione(Acc, Pointer, Mem, X, noflag) :- nth0(Pointer, Mem, Value, _),
                                         Y is Acc-Value,
                                         X is ((Acc-Value)mod 1000),
@@ -35,7 +50,11 @@ sottrazione(Acc, Pointer, Mem, X, noflag) :- nth0(Pointer, Mem, Value, _),
 /**
  * Store
  * 
- * Value: 3xx
+ * Instruction: 3xx
+ *
+ * Salva il valore contenuto nell'accumulatore nella cella di memoria 
+ * avente indirizzo xx. 
+ * Il contenuto dell'accumulatore rimane invariato.
 */
 
 store(Acc, Pointer, MemIn, MemOut) :- nth0(Pointer, MemIn, _, Varmem),
@@ -44,21 +63,31 @@ store(Acc, Pointer, MemIn, MemOut) :- nth0(Pointer, MemIn, _, Varmem),
 /**
  * Instruction not found
  * 
- * Value: 4xx
+ * Instruction: 4xx
+ *
+ * I numeri tra 400 e 499 non hanno un corrispettivo.
+ * Corrispondono a delle istruzioni non valide (illegal instructions). 
+ * Si fermerà con una condizione di errore.
 */
-notfound(Pointer) :- write("L'istruzione "), write(Pointer), write(" non è presente!").
+notfound(Pointer) :- write(Pointer), write(": illegal instruction").
 
 /**
  * Load
  * 
- * Value: 5xx
+ * Instruction: 5xx
+ * 
+ * Scrive il valore contenuto nella cella di memoria di indirizzo xx nell'accumulatore. 
+ * Il contenuto della cella di memoria rimane invariato.
 */
 load(Acc, Pointer, MemIn) :- nth0(Pointer, MemIn, Acc, _).
 
 /**
  * Branch
  * 
- * Value: 6xx
+ * Instruction: 6xx
+ *
+ * Salto non condizionale. 
+ * Imposta il valore del program counter a xx.
 */
 
 branch(Pc, Pointer) :- Pc is Pointer.
@@ -66,7 +95,11 @@ branch(Pc, Pointer) :- Pc is Pointer.
 /**
  * Branch if zero
  * 
- * Value: 7xx
+ * Instruction: 7xx
+ *
+ * Salto condizionale. 
+ * Imposta il valore del program counter a xx solamente se 
+ * il contenuto dell'accumulatore è zero e se il flag è assente.
 */
 
 branchifzero(Pc, Acc, Pointer, Flag) :- Acc = 0,
@@ -76,7 +109,10 @@ branchifzero(Pc, Acc, Pointer, Flag) :- Acc = 0,
 /**
  * Branch if positive
  * 
- * Value: 8xx
+ * Instruction: 8xx
+ *
+ * Salto condizionale. 
+ * Imposta il valore del program counter a xx solamente se il flag è assente.
 */
 
 branchifpositive(Pc, Pointer, Flag) :- Flag = noflag,
@@ -85,14 +121,20 @@ branchifpositive(Pc, Pointer, Flag) :- Flag = noflag,
 /**
  * Input
  * 
- * Value: 901
+ * Instruction: 901
+ *
+ * Scrive il contenuto presente nella testa della coda in input 
+ * nell'accumulatore e lo rimuove dalla coda di input.
 */
 input(Acc, [Acc|NewQueueIn], NewQueueIn).
 
 /**
  * Output
  * 
- * Value: 902
+ * Instruction: 902
+ *
+ * Scrive il contenuto dell'accumulatore alla fine della coda di output. 
+ * Il contenuto dell'accumulatore rimane invariato.
 */
 
 output(Acc, QueueOut, NewQueueOut) :- append(QueueOut, [Acc], NewQueueOut).
@@ -100,7 +142,10 @@ output(Acc, QueueOut, NewQueueOut) :- append(QueueOut, [Acc], NewQueueOut).
 /**
  * Halt
  * 
- * Value: 0xx
+ * Instruction: 0xx
+ *
+ * Termina l'esecuzione del programma. 
+ * Nessuna ulteriore istruzione viene eseguita.
 */
 
 lmc_halt :- halt.
