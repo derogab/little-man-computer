@@ -144,7 +144,22 @@ state(Acc, Pc, Mem, In, Out, Flag) :-
 
 istruzione(Pc, Mem , I) :- nth0(Pc, Mem, I, _).
 
-                           
+cellarisultato(I, X) :- number_chars(I, L),
+                        nth0(0, L, _, L2),
+                        number_chars(X, L2).
+
+halted_state(Acc, Pc, Mem, In, Out, Flag).
+ /* halted state da distemare  in uno solo */
+one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
+                  halted_state(Acc, Pc, Mem, In, Out, Flag)) :- 
+    istruzione(Pc, Mem , Istr),
+    Istr >= 0, Istr < 100,!.
+
+one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
+                  halted_state(Acc, Pc, Mem, In, Out, Flag)) :- 
+    istruzione(Pc, Mem , Istr),
+    Istr >= 400, Istr < 500,!.
+
 one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
                   state(Acc2, Pc2, Mem2, In2, Out2, Flag2)) :- 
     istruzione(Pc, Mem , Istr),
@@ -166,24 +181,38 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
                                 append([], In, In2),
                                 append([], Out, Out2),
                                 copy_term(Flag, Flag2);
-        Istr >= 400, Istr < 500 -> notfound(Pointer);
-        Istr >= 500, Istr < 600 -> branch(Pc2, Pointer),
+        Istr >= 500, Istr < 600 -> load(Acc2, Pointer, Mem),                                   Pc2 is Pc+1,
+                                   append([], Mem, Mem2),
+                                   append([], In, In2),
+                                   append([], Out, Out2),
+                                   copy_term(Flag, Flag2);
+        Istr >= 600, Istr < 700 -> branch(Pc2, Pointer),
                                    Acc2 is Acc,
                                    append([], Mem, Mem2),
                                    append([], In, In2),
                                    append([], Out, Out2),
                                    copy_term(Flag, Flag2);
-        Istr >= 600, Istr < 700 -> branchifzero(Pc2, Acc, Pointer, Flag),
+        Istr >= 700, Istr < 800 -> branchifzero(Pc2, Acc, Pointer, Flag),
                                    Acc2 is Acc,
                                    append([], Mem, Mem2),
                                    append([], In, In2),
                                    append([], Out, Out2);
-        Istr >= 700, Istr < 800 -> branchifpositive(Pc2, Pointer, Flag),
+        Istr >= 800, Istr < 900 -> branchifpositive(Pc2, Pointer, Flag),
                                    Acc2 is Acc,
                                    append([], Mem, Mem2),
                                    append([], In, In2),
-                                   append([], Out, Out2)                          
-                                  
+                                   append([], Out, Out2);
+        Istr =  901 -> input(Acc2, In, In2),
+                       Pc2 is Pc+1,
+                       append([], Mem, Mem2),
+                       append([], Out, Out2),
+                       copy_term(Flag, Flag2);
+        Istr =  902 -> output(Acc, Out, Out2),
+                       Acc2 is Acc,
+                       Pc2 is Pc+1,
+                       append([], Mem, Mem2),
+                       append([], In, In2),
+                       copy_term(Flag, Flag2)                 
     ).
 
 
@@ -205,9 +234,7 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
                            nth0(Pc, Mem, I, _).*/
 
 /* istruzione nxx tengo xx */
-cellarisultato(I, X) :- number_chars(I, L),
-                        nth0(0, L, _, L2),
-                        number_chars(X, L2).
+
 
 
 
