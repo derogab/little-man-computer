@@ -39,28 +39,38 @@ load(Acc, Istr, Mem) :- Istr > 499, Istr < 600,
                         nth0(Istrv, Mem, X, _),
                         Acc is X.
 
-branch(Pc, Istr) :- Istr > 599, Istr < 700,
+branch(Pc, Istr, X) :- Istr > 599, Istr < 700,
                     cellarisultato(Istr, Istrv),
-                    Pc is Istrv.
+                    X is Istrv.
 
-branchifzero(Pc, Acc, Istr) :- Istr > 699, Istr < 800,
+branchifzero(Pc, Acc, Istr, X) :- Istr > 699, Istr < 800,
                                cellarisultato(Istr, Istrv),
                                Acc is 0,
-                               Pc is Istrv.
+                               X is Istrv.
 
-branchifpositive(Pc, Istr, Flag) :- Istr > 799, Istr< 900,
+branchifpositive(Pc, Istr, Flag, X) :- Istr > 799, Istr< 900,
                                     cellarisultato(Istr, Istrv),
                                     member(Flag, [noflag]),
-                                    Pc is Istrv.
+                                    X is Istrv.
 
-input(Acc, In, Istr, NewIn) :- Istr is 901,
+input(Acc, In, Istr, NewIn, X) :- Istr is 901,
                                nth0(0, In, Elem, NewIn),
-                               Acc is Elem.
+                               X is Elem.
 
 output(Acc, Out, Istr, NewOut) :- Istr is 902,
                                   append(Out, [Acc], NewOut).
 
 term :- halt.
 
-one_instruction(state(Acc, Pc, Mem, In, Out, Flag), X) :-
-    X is state(Acc+10, Pc, Mem, In, Out, Flag)    .
+one_instruction(state(Acc, Pc, Mem, In, Out, Flag), state(Acc2, Pc2, Mem2, In2, Out2, FLag2)) :-
+   istruzione(Pc, Mem , Istr),
+   addizione(Acc, Istr, Acc2).
+   /*sottrazione(Acc, Istr, Acc2),
+   store(Acc, Istr, Mem2),
+   load(Acc, Istr, Mem2)
+   branch(Pc, Istr) 
+   branchifzero(Pc, Acc, Istr) 
+   branchifpositive(Pc, Istr, Flag) 
+   input(Acc, In, Istr, NewIn) 
+   output(Acc, Out, Istr, NewOut) 
+   term :- halt.*/
