@@ -293,3 +293,19 @@ execution_loop(state(Acc, Pc, Mem, In, Out, Flag), OutTot) :-
     one_instruction(state(Acc, Pc, Mem, In, Out, Flag), state(Acc2, Pc2, Mem2, In2, Out2, Flag2)),
     execution_loop(state(Acc2, Pc2, Mem2, In2, Out2, Flag2), OutTot).
 
+
+/* parsing */
+
+remove_comment(Row, Command) :- split_string(Row, "//", " ", X),
+                                nth0(0, X, Command, _).
+
+del_blank(X, [], []) :- !.
+del_blank(X, [X|Xs], Y) :- !, del_blank(X, Xs, Y).
+del_blank(X, [T|Xs], Y) :- !, del_blank(X, Xs, Y2), append([T], Y2, Y).
+
+/*exec(Row) :- split_string(Row, " ", "", Y),
+             del_blank("", Y, Words),
+             proper_length(Words, WordsNum),*/
+             
+
+                         
