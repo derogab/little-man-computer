@@ -303,9 +303,45 @@ del_blank(X, [], []) :- !.
 del_blank(X, [X|Xs], Y) :- !, del_blank(X, Xs, Y).
 del_blank(X, [T|Xs], Y) :- !, del_blank(X, Xs, Y2), append([T], Y2, Y).
 
-/*exec(Row) :- split_string(Row, " ", "", Y),
-             del_blank("", Y, Words),
-             proper_length(Words, WordsNum),*/
-             
+exec(Row, Instruction) :- split_string(Row, " ", "", Y),
+                          del_blank("", Y, Words),
+                          proper_length(Words, WordsNum),
+                          (
+                            WordsNum = 1 -> single_command(Words, Instruction);
+                            WordsNum = 2 -> command(Words, Instruction);
+                            WordsNum = 3 -> command_with_label(Words, Instruction)
+                          ).
 
-                         
+normalize(Number, NumberNorm) :- string_length(Number, Leng),
+                                 (
+                                    Leng = 1 -> string_concat("0",Number, NumberNorm);
+                                    copy_term(Number, NumberNorm)
+                                 ).
+
+single_command([Command], Instruction) :- string_lower(Command, CommandLower),
+                                          (
+                                            CommandLower = "inp" -> copy_term("901", Instruction);
+                                            CommandLower = "out" -> copy_term("902", Instruction);
+                                            CommandLower = "hlt" -> copy_term("001", Instruction)
+                                            % MEMO: Istruzione DAT con 1 word da gestire in predicati superiori
+                                          ).
+
+command([Command, Value], Instruction) :- string_lower(Command, CommandLower),  
+                                          normalize(Value, ValueNorm),
+                                          assertz(tag([Command, Value], [Command, Value])),            
+                                          (
+                                            CommandLower = "add" -> string_concat("1", ValueNorm, Instruction);
+                                            CommandLower = "sub" -> string_concat("2", ValueNorm, Instruction);
+                                            CommandLower = "sta" -> string_concat("3", ValueNorm, Instruction);
+                                            CommandLower = "lda" -> string_concat("5", ValueNorm, Instruction);
+                                            CommandLower = "bra" -> string_concat("6", ValueNorm, Instruction);
+                                            CommandLower = "brz" -> string_concat("7", ValueNorm, Instruction);
+                                            CommandLower = "brp" -> string_concat("8", ValueNorm, Instruction)
+                                            % MEMO: Istruzione DAT con 2 words da gestire in predicati superiori
+                                          ).
+command_with_label([Label, Command, Value], Instruction) :- string_lower(Command, CommandLower),  
+                                                 normalize(Value, ValueNorm),
+                                                 assertz(tag(Label, [Command, Value])),
+                                                 command([Command, Value], Instruction).
+
+test(Label, Result) :- tag(Label, Result).                                               
