@@ -198,16 +198,12 @@ cellarisultato(I, X) :- number_chars(I, L),
                         number_chars(X, L2).
 
 halted_state(Acc, Pc, Mem, In, Out, Flag).
- /* halted state da distemare  in uno solo */
-one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
-                  halted_state(Acc, Pc, Mem, In, Out, Flag)) :- 
-    istruzione(Pc, Mem , Istr),
-    Istr >= 0, Istr < 100,!.
 
 one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
                   halted_state(Acc, Pc, Mem, In, Out, Flag)) :- 
-    istruzione(Pc, Mem , Istr),
-    Istr >= 400, Istr < 500,!.
+                  istruzione(Pc, Mem , Istr),
+                  ((Istr >= 0, Istr < 100); (Istr >= 400, Istr < 500)),
+                  !.
 
 one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
                   state(Acc2, Pc2, Mem2, In2, Out2, Flag2)) :- 
