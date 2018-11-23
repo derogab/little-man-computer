@@ -13,6 +13,7 @@
  *
  *
  * MEMO: Pointer contiene il valore già tranciato 
+ * MEMO: Il risultato dovrà essere il nuovo accumulatore
 */
 
 addizione(Acc, Pointer, Mem, X, flag) :- nth0(Pointer, Mem, Value, _),
@@ -35,6 +36,9 @@ addizione(Acc, Pointer, Mem, X, noflag) :- nth0(Pointer, Mem, Value, _),
  * Il valore salvato nell'accumulatore è la differenza modulo 1000. 
  * Se la differenza è inferiore a zero il flag è impostato a presente, 
  * se invece è positiva o zero il flag è impostato ad assente.
+ *
+ *
+ * MEMO: Il risultato dovrà essere il nuovo accumulatore
 */
 
 sottrazione(Acc, Pointer, Mem, X, flag) :- nth0(Pointer, Mem, Value, _),
