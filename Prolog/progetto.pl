@@ -106,9 +106,9 @@ branch(Pc, Pointer) :- Pc is Pointer.
  * il contenuto dell'accumulatore è zero e se il flag è assente.
 */
 
-branchifzero(Pc, Acc, Pointer, Flag) :- Acc = 0,
-                                        Flag = noflag,
-                                        Pc is Pointer.
+branchifzero(Pc, Acc, Pointer, Flag, NewPc) :- (Acc = 0, Flag = noflag)->
+                                        NewPc is Pointer;
+                                        NewPc is Pc+1.
 
 /**
  * Branch if positive
@@ -119,8 +119,8 @@ branchifzero(Pc, Acc, Pointer, Flag) :- Acc = 0,
  * Imposta il valore del program counter a xx solamente se il flag è assente.
 */
 
-branchifpositive(Pc, Pointer, Flag) :- Flag = noflag,
-                                       Pc is Pointer.
+branchifpositive(Pc, Pointer, Flag, NewPc) :- Flag = noflag -> NewPc is Pointer;
+                                        NewPc is Pc+1.
 
 /**
  * Input
@@ -162,7 +162,7 @@ lmc_halt :- halt.
  * State
 */
 
-state(Acc, Pc, Mem, In, Out, Flag) :-
+/*state(Acc, Pc, Mem, In, Out, Flag) :-
     numlist(0, 99, L), % lista da 0 a 99
     member(Acc, L), % 0-99 check 
     member(Pc, L), % 0-99 check
@@ -186,7 +186,7 @@ state(Acc, Pc, Mem, In, Out, Flag) :-
     proper_length(Out, OutLength),
     OutLength >= 0,
     member(Flag,  [flag, noflag]).
-
+*/
 /**
  * One Instruction
 */
@@ -209,7 +209,11 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
                   state(Acc2, Pc2, Mem2, In2, Out2, Flag2)) :- 
     istruzione(Pc, Mem , Istr),
     cellarisultato(Istr, Pointer),
+    proper_length(In, InEmpty),
     (
+        InEmpty = 0 -> write("input vuoto"),
+                       write("\n"),
+                       abort;
         Istr >= 100, Istr < 199 -> addizione(Acc, Pointer, Mem, Acc2, Flag2),
                                 Pc2 is Pc+1,
                                 append([], Mem, Mem2),
@@ -226,7 +230,8 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
                                 append([], In, In2),
                                 append([], Out, Out2),
                                 copy_term(Flag, Flag2);
-        Istr >= 500, Istr < 600 -> load(Acc2, Pointer, Mem),                                   Pc2 is Pc+1,
+        Istr >= 500, Istr < 600 -> load(Acc2, Pointer, Mem),                                   
+                                   Pc2 is Pc+1,
                                    append([], Mem, Mem2),
                                    append([], In, In2),
                                    append([], Out, Out2),
@@ -237,16 +242,18 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
                                    append([], In, In2),
                                    append([], Out, Out2),
                                    copy_term(Flag, Flag2);
-        Istr >= 700, Istr < 800 -> branchifzero(Pc2, Acc, Pointer, Flag),
+        Istr >= 700, Istr < 800 -> branchifzero(Pc, Acc, Pointer, Flag, Pc2),
                                    Acc2 is Acc,
                                    append([], Mem, Mem2),
                                    append([], In, In2),
-                                   append([], Out, Out2);
-        Istr >= 800, Istr < 900 -> branchifpositive(Pc2, Pointer, Flag),
+                                   append([], Out, Out2),
+                                   copy_term(Flag, Flag2);
+        Istr >= 800, Istr < 900 -> branchifpositive(Pc, Pointer, Flag, Pc2),
                                    Acc2 is Acc,
                                    append([], Mem, Mem2),
                                    append([], In, In2),
-                                   append([], Out, Out2);
+                                   append([], Out, Out2),
+                                   copy_term(Flag, Flag2);
         Istr =  901 -> input(Acc2, In, In2),
                        Pc2 is Pc+1,
                        append([], Mem, Mem2),
@@ -281,5 +288,8 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
 /* istruzione nxx tengo xx */
 
 
-
+execution_loop(halted_state(Acc, Pc, Mem, In, Out, Flag), OutTot).
+execution_loop(state(Acc, Pc, Mem, In, Out, Flag), OutTot) :-
+    one_instruction(state(Acc, Pc, Mem, In, Out, Flag), state(Acc2, Pc2, Mem2, In2, Out2, Flag2)),
+    execution_loop(state(Acc2, Pc2, Mem2, In2, Out2, Flag2), OutTot).
 
