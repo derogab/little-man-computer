@@ -211,9 +211,7 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
     cellarisultato(Istr, Pointer),
     proper_length(In, InEmpty),
     (
-        InEmpty = 0 -> write("input vuoto"),
-                       write("\n"),
-                       abort;
+        Istr>=0, Istr<99 -> abort;
         Istr >= 100, Istr < 199 -> addizione(Acc, Pointer, Mem, Acc2, Flag2),
                                 Pc2 is Pc+1,
                                 append([], Mem, Mem2),
@@ -254,11 +252,12 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
                                    append([], In, In2),
                                    append([], Out, Out2),
                                    copy_term(Flag, Flag2);
-        Istr =  901 -> input(Acc2, In, In2),
+        Istr =  901, InEmpty \= 0 -> input(Acc2, In, In2),
                        Pc2 is Pc+1,
                        append([], Mem, Mem2),
                        append([], Out, Out2),
                        copy_term(Flag, Flag2);
+        InEmpty = 0 -> write("input vuoto");
         Istr =  902 -> output(Acc, Out, Out2),
                        Acc2 is Acc,
                        Pc2 is Pc+1,
@@ -288,10 +287,10 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
 /* istruzione nxx tengo xx */
 
 
-execution_loop(halted_state(Acc, Pc, Mem, In, Out, Flag), OutTot).
+execution_loop(halted_state(Acc, Pc, Mem, In, Out, Flag), Out).
 execution_loop(state(Acc, Pc, Mem, In, Out, Flag), OutTot) :-
-    one_instruction(state(Acc, Pc, Mem, In, Out, Flag), state(Acc2, Pc2, Mem2, In2, Out2, Flag2)),
-    execution_loop(state(Acc2, Pc2, Mem2, In2, Out2, Flag2), OutTot).
+    one_instruction(state(Acc, Pc, Mem, In, Out, Flag), NewState),
+    execution_loop(NewState, OutTot).
 
 
 /* parsing */
