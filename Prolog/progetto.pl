@@ -89,21 +89,24 @@ load(Acc, Pointer, MemIn) :- nth0(Pointer, MemIn, Acc, _).
  *
  * Salto non condizionale. 
  * Imposta il valore del program counter a xx.
+ *
+ * branch(Pc, NewPointer4Pc) / 2
 */
-branch(Pc, Pointer) :- Pc is Pointer.
+branch(Pc, Pc).
 
 /**
  * Branch if zero
  * 
  * Instruction: 7xx
  *
- * Salto condizionale. 
+ * Salto condizionale.
  * Imposta il valore del program counter a xx solamente se 
  * il contenuto dell'accumulatore è zero e se il flag è assente.
+ *
+ * branchifzero(Pc, Acc, Pointer, Flag, NewPc) / 5
 */
-branchifzero(Pc, Acc, Pointer, Flag, NewPc) :- (Acc = 0, Flag = noflag)->
-                                               NewPc is Pointer;
-                                               NewPc is Pc+1.
+branchifzero(_, 0, Pointer, noflag, Pointer) :- !.
+branchifzero(Pc, _, _, flag, NewPc) :- NewPc is (Pc + 1).
 
 /**
  * Branch if positive
@@ -112,9 +115,11 @@ branchifzero(Pc, Acc, Pointer, Flag, NewPc) :- (Acc = 0, Flag = noflag)->
  *
  * Salto condizionale. 
  * Imposta il valore del program counter a xx solamente se il flag è assente.
+ *
+ * branchifpositive(Pc, Pointer, Flag, NewPc) / 4
 */
-branchifpositive(Pc, Pointer, Flag, NewPc) :- Flag = noflag -> NewPc is Pointer;
-                                              NewPc is Pc+1.
+branchifpositive(_, Pointer, noflag, Pointer) :- !.
+branchifpositive(Pc, _, flag, NewPc) :- NewPc is (Pc + 1).
 
 /**
  * Input
