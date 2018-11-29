@@ -1,4 +1,4 @@
-% ISTRUZIONI
+% ISTRUZIONI IN MEMORIA
 
 /**
  * Addizione
@@ -15,16 +15,15 @@
  * MEMO: Pointer contiene il valore già tranciato 
  * MEMO: Il risultato dovrà essere il nuovo accumulatore
 */
-
 addizione(Acc, Pointer, Mem, X, flag) :- nth0(Pointer, Mem, Value, _),
-                                    Y is Acc+Value,
-                                    X is ((Acc+Value)mod 1000),
-                                    Y > 999,
-                                    !.
+                                         Y is Acc+Value,
+                                         X is ((Acc+Value)mod 1000),
+                                         Y > 999,
+                                         !.
 addizione(Acc, Pointer, Mem, X, noflag) :- nth0(Pointer, Mem, Value, _),
-                                      Y is Acc+Value,
-                                      X is ((Acc+Value)mod 1000),
-                                      Y < 1000.
+                                           Y is Acc+Value,
+                                           X is ((Acc+Value)mod 1000),
+                                           Y < 1000.
 
 /**
  * Sottrazione
@@ -40,16 +39,15 @@ addizione(Acc, Pointer, Mem, X, noflag) :- nth0(Pointer, Mem, Value, _),
  *
  * MEMO: Il risultato dovrà essere il nuovo accumulatore
 */
-
 sottrazione(Acc, Pointer, Mem, X, flag) :- nth0(Pointer, Mem, Value, _),
-                                      Y is Acc-Value,
-                                      X is ((Acc-Value)mod 1000),
-                                      Y < 0,
-                                      !.
+                                           Y is Acc-Value,
+                                           X is ((Acc-Value)mod 1000),
+                                           Y < 0,
+                                           !.
 sottrazione(Acc, Pointer, Mem, X, noflag) :- nth0(Pointer, Mem, Value, _),
-                                        Y is Acc-Value,
-                                        X is ((Acc-Value)mod 1000),
-                                        Y >= 0.
+                                             Y is Acc-Value,
+                                             X is ((Acc-Value)mod 1000),
+                                             Y >= 0.
 
 /**
  * Store
@@ -60,7 +58,6 @@ sottrazione(Acc, Pointer, Mem, X, noflag) :- nth0(Pointer, Mem, Value, _),
  * avente indirizzo xx. 
  * Il contenuto dell'accumulatore rimane invariato.
 */
-
 store(Acc, Pointer, MemIn, MemOut) :- nth0(Pointer, MemIn, _, Varmem),
                                       nth0(Pointer, MemOut, Acc, Varmem).
 
@@ -93,7 +90,6 @@ load(Acc, Pointer, MemIn) :- nth0(Pointer, MemIn, Acc, _).
  * Salto non condizionale. 
  * Imposta il valore del program counter a xx.
 */
-
 branch(Pc, Pointer) :- Pc is Pointer.
 
 /**
@@ -105,10 +101,9 @@ branch(Pc, Pointer) :- Pc is Pointer.
  * Imposta il valore del program counter a xx solamente se 
  * il contenuto dell'accumulatore è zero e se il flag è assente.
 */
-
 branchifzero(Pc, Acc, Pointer, Flag, NewPc) :- (Acc = 0, Flag = noflag)->
-                                        NewPc is Pointer;
-                                        NewPc is Pc+1.
+                                               NewPc is Pointer;
+                                               NewPc is Pc+1.
 
 /**
  * Branch if positive
@@ -118,9 +113,8 @@ branchifzero(Pc, Acc, Pointer, Flag, NewPc) :- (Acc = 0, Flag = noflag)->
  * Salto condizionale. 
  * Imposta il valore del program counter a xx solamente se il flag è assente.
 */
-
 branchifpositive(Pc, Pointer, Flag, NewPc) :- Flag = noflag -> NewPc is Pointer;
-                                        NewPc is Pc+1.
+                                              NewPc is Pc+1.
 
 /**
  * Input
@@ -140,7 +134,6 @@ input(Acc, [Acc|NewQueueIn], NewQueueIn).
  * Scrive il contenuto dell'accumulatore alla fine della coda di output. 
  * Il contenuto dell'accumulatore rimane invariato.
 */
-
 output(Acc, QueueOut, NewQueueOut) :- append(QueueOut, [Acc], NewQueueOut).
 
 /**
@@ -151,7 +144,6 @@ output(Acc, QueueOut, NewQueueOut) :- append(QueueOut, [Acc], NewQueueOut).
  * Termina l'esecuzione del programma. 
  * Nessuna ulteriore istruzione viene eseguita.
 */
-
 lmc_halt :- halt.
 
 
@@ -291,6 +283,10 @@ execution_loop(halted_state(Acc, Pc, Mem, In, Out, Flag), Out).
 execution_loop(state(Acc, Pc, Mem, In, Out, Flag), OutTot) :-
     one_instruction(state(Acc, Pc, Mem, In, Out, Flag), NewState),
     execution_loop(NewState, OutTot).
+
+
+
+% ISTRUZIONI ASSEMBLY
 
 
 /* parsing */
