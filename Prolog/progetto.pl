@@ -269,12 +269,34 @@ one_instruction(
                        copy_term(Flag, Flag2)                 
      ).
 
+/**
+ * Execution Loop
+ *
+ * Cicla dallo stato iniziale allo stato finale
+ *
+ * execution_loop(State, Out) / 2
+ * 
+ * State: rappresenta lo stato iniziale del LMC
+ * Out: coda di output nel momento in cui viene raggiunto uno stato di stop
+ *
+ * MEMO: "Il predicato deve fallire nel caso l’esecuzione termini senza 
+ * eseguire una istruzione di halt (ad esempio se si incontra una 
+ * istruzione non valida)."
+*/
+execution_loop(
 
+    halted_state(Acc, Pc, Mem, In, Out, Flag), 
+    Out
 
-execution_loop(halted_state(Acc, Pc, Mem, In, Out, Flag), Out).
-execution_loop(state(Acc, Pc, Mem, In, Out, Flag), OutTot) :-
-    one_instruction(state(Acc, Pc, Mem, In, Out, Flag), NewState),
-    execution_loop(NewState, OutTot).
+).
+
+execution_loop(
+    
+    state(Acc, Pc, Mem, In, Out, Flag), 
+    OutTot
+
+) :- one_instruction(state(Acc, Pc, Mem, In, Out, Flag), NewState),
+     execution_loop(NewState, OutTot).
 
 
 
