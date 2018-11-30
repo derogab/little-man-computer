@@ -106,7 +106,12 @@ branch(Pc, Pc).
  * branchifzero(Pc, Acc, Pointer, Flag, NewPc) / 5
 */
 branchifzero(_, 0, Pointer, noflag, Pointer) :- !.
+branchifzero(Pc, _, _, noflag, NewPc) :- NewPc is (Pc + 1).
 branchifzero(Pc, _, _, flag, NewPc) :- NewPc is (Pc + 1).
+
+/*branchifzero(Pc, Acc, Pointer, Flag, NewPc) :- (Acc = 0, Flag = noflag)->
+                                               NewPc is Pointer;
+                                               NewPc is Pc+1.*/
 
 /**
  * Branch if positive
@@ -172,8 +177,6 @@ instr_in_mem(Pc, Mem, Instruction) :- nth0(Pc, Mem, Instruction, _).
 */
 extract_pointer(I, X) :- X is (I mod 100).
 
-halted_state(Acc, Pc, Mem, In, Out, Flag).
-
 /**
  * One Instruction
  *
@@ -202,8 +205,6 @@ one_instruction(
      extract_pointer(Istr, Pointer),
      proper_length(In, InEmpty),
      (
-        % Halt
-        Istr >= 0, Istr < 99 -> abort;
         % Addizione
         Istr >= 100, Istr < 199 -> addizione(Acc, Pointer, Mem, Acc2, Flag2),
                                    Pc2 is Pc+1,
@@ -257,7 +258,6 @@ one_instruction(
                                      append([], Mem, Mem2),
                                      append([], Out, Out2),
                                      copy_term(Flag, Flag2);
-                                     InEmpty = 0 -> write("input vuoto");
         % Output
         Istr =  902 -> output(Acc, Out, Out2),
                        Acc2 is Acc,
@@ -281,6 +281,8 @@ one_instruction(
  * eseguire una istruzione di halt (ad esempio se si incontra una 
  * istruzione non valida)."
 */
+
+
 execution_loop(
 
     halted_state(Acc, Pc, Mem, In, Out, Flag), 
@@ -296,28 +298,40 @@ execution_loop(
 ) :- one_instruction(state(Acc, Pc, Mem, In, Out, Flag), NewState),
      execution_loop(NewState, OutTot).
 
-
-
 % ISTRUZIONI ASSEMBLY
 
 
 /* parsing */
 
+/**
+* Rimuove i commenti
+*/
 remove_comment(Row, Command) :- split_string(Row, "//", " ", X),
                                 nth0(0, X, Command, _).
 
+/**
+* 
+*/
 del_blank(X, [], []) :- !.
 del_blank(X, [X|Xs], Y) :- !, del_blank(X, Xs, Y).
 del_blank(X, [T|Xs], Y) :- !, del_blank(X, Xs, Y2), append([T], Y2, Y).
 
-exec(Row, Instruction) :- split_string(Row, " ", "", Y),
-                          del_blank("", Y, Words),
-                          proper_length(Words, WordsNum),
-                          (
-                            WordsNum = 1 -> single_command(Words, Instruction);
-                            WordsNum = 2 -> command(Words, Instruction);
-                            WordsNum = 3 -> command_with_label(Words, Instruction)
-                          ).
+
+search_label(FirstEmptyIndex, Row) :- split_string(Row, " ", "", Y), % splitta istruzione in parole
+                              del_blank("", Y, Words), % eliminazione spazi inutili                                           
+                              proper_length(Words, WordsNum), % conteggio parole
+                              WordsNum = 3,
+                              nth0(0, Words, Label, _),
+                              assertz(tag(Label, FirstEmptyIndex)).
+
+exec(FirstEmptyIndex, Row, Instruction) :- split_string(Row, " ", "", Y), % splitta istruzione in parole
+                                           del_blank("", Y, Words), % eliminazione spazi inutili
+                                           proper_length(Words, WordsNum), % conteggio parole
+                                           (
+                                                WordsNum = 1 -> single_command(Words, Instruction);
+                                                WordsNum = 2 -> command(Words, Instruction);
+                                                WordsNum = 3 -> command_with_label(Words, Instruction, FirstEmptyIndex)
+                                           ).
 
 normalize(Number, NumberNorm) :- string_length(Number, Leng),
                                  (
@@ -329,11 +343,11 @@ single_command([Command], Instruction) :- string_lower(Command, CommandLower),
                                           (
                                             CommandLower = "inp" -> copy_term("901", Instruction);
                                             CommandLower = "out" -> copy_term("902", Instruction);
-                                            CommandLower = "hlt" -> copy_term("001", Instruction)
-                                            % MEMO: Istruzione DAT con 1 word da gestire in predicati superiori
+                                            CommandLower = "hlt" -> copy_term("001", Instruction);
+                                            CommandLower = "dat" -> copy_term("000", Instruction)                                                                                       
                                           ).
 
-command([Command, Value], Instruction) :- string_lower(Command, CommandLower),  
+command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
                                           normalize(Value, ValueNorm),
                                           assertz(tag([Command, Value], [Command, Value])),            
                                           (
@@ -343,12 +357,28 @@ command([Command, Value], Instruction) :- string_lower(Command, CommandLower),
                                             CommandLower = "lda" -> string_concat("5", ValueNorm, Instruction);
                                             CommandLower = "bra" -> string_concat("6", ValueNorm, Instruction);
                                             CommandLower = "brz" -> string_concat("7", ValueNorm, Instruction);
-                                            CommandLower = "brp" -> string_concat("8", ValueNorm, Instruction)
-                                            % MEMO: Istruzione DAT con 2 words da gestire in predicati superiori
+                                            CommandLower = "brp" -> string_concat("8", ValueNorm, Instruction);
+                                            CommandLower = "dat" -> copy_term(ValueNorm, Instruction)
                                           ).
-command_with_label([Label, Command, Value], Instruction) :- string_lower(Command, CommandLower),  
-                                                 normalize(Value, ValueNorm),
-                                                 assertz(tag(Label, [Command, Value])),
-                                                 command([Command, Value], Instruction).
+command_with_label([Label, Command, Value], Instruction, FirstEmptyIndex) :- string_lower(Command, CommandLower),  
+                                                                             normalize(Value, ValueNorm),
+                                                                             assertz(tag(Label, FirstEmptyIndex)),
+                                                                             command([Command, Value], Instruction).
+                                                                                                                          
+% TODO: lmc_load da terminare
+%lmc_load(Filename, Mem) :- open(Filename, read, In),
 
-test(Label, Result) :- tag(Label, Result).                                               
+getLines(L):-
+  setup_call_cleanup(
+    open('textFile.abc', read, In),
+    readData(In, L),
+    close(In)
+  ).
+
+readData(In, L):-
+  read_term(In, H, []),
+  (   H == end_of_file
+  ->  L = []
+  ;   L = [H|T],
+      readData(In,T)
+  ).
