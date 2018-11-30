@@ -170,9 +170,7 @@ instr_in_mem(Pc, Mem, Instruction) :- nth0(Pc, Mem, Instruction, _).
  * Estraggo il puntatore in memoria dall'istruzione
  * Esempio: da Ixx tengo xx
 */
-extract_pointer(I, X) :- number_chars(I, L),
-                         nth0(0, L, _, L2),
-                         number_chars(X, L2).
+extract_pointer(I, X) :- X is (I mod 100).
 
 halted_state(Acc, Pc, Mem, In, Out, Flag).
 
