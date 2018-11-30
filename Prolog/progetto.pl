@@ -184,84 +184,120 @@ lmc_halt :- halt.
     OutLength >= 0,
     member(Flag,  [flag, noflag]).
 */
+
 /**
- * One Instruction
+ * Istruzione in memoria
+ *
+ * Estraggo l'istruzione in memoria puntata dal Program Counter
+ *
+ * instr_in_mem(Pc, Mem, Instr) / 3
 */
+instr_in_mem(Pc, Mem, Instruction) :- nth0(Pc, Mem, Instruction, _).
 
-istruzione(Pc, Mem , I) :- nth0(Pc, Mem, I, _).
-
-cellarisultato(I, X) :- number_chars(I, L),
-                        nth0(0, L, _, L2),
-                        number_chars(X, L2).
+/**
+ * Puntatore nell'istruzione
+ *
+ * Estraggo il puntatore in memoria dall'istruzione
+ * Esempio: da Ixx tengo xx
+*/
+extract_pointer(I, X) :- number_chars(I, L),
+                         nth0(0, L, _, L2),
+                         number_chars(X, L2).
 
 halted_state(Acc, Pc, Mem, In, Out, Flag).
 
-one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
-                  halted_state(Acc, Pc, Mem, In, Out, Flag)) :- 
-                  istruzione(Pc, Mem , Istr),
-                  ((Istr >= 0, Istr < 100); (Istr >= 400, Istr < 500)),
-                  !.
+/**
+ * One Instruction
+ *
+ * Esegui una istruzione:
+ * - Leggi in memoria l'istruzione puntata dal PC
+ * - Estrai i dati dall'istruzione
+ * - Controllo l'istruzione da eseguire
+ * - Eseguo
+*/
+one_instruction(
+    
+    state(Acc, Pc, Mem, In, Out, Flag),
+    halted_state(Acc, Pc, Mem, In, Out, Flag)
 
-one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
-                  state(Acc2, Pc2, Mem2, In2, Out2, Flag2)) :- 
-    istruzione(Pc, Mem , Istr),
-    cellarisultato(Istr, Pointer),
-    proper_length(In, InEmpty),
-    (
-        Istr>=0, Istr<99 -> abort;
+) :- instr_in_mem(Pc, Mem , Istr),
+     % illegal instruction
+     ((Istr >= 0, Istr < 100); (Istr >= 400, Istr < 500)),
+     !.
+
+one_instruction(
+
+    state(Acc, Pc, Mem, In, Out, Flag), 
+    state(Acc2, Pc2, Mem2, In2, Out2, Flag2)
+
+) :- instr_in_mem(Pc, Mem, Istr),
+     extract_pointer(Istr, Pointer),
+     proper_length(In, InEmpty),
+     (
+        % Halt
+        Istr >= 0, Istr < 99 -> abort;
+        % Addizione
         Istr >= 100, Istr < 199 -> addizione(Acc, Pointer, Mem, Acc2, Flag2),
-                                Pc2 is Pc+1,
-                                append([], Mem, Mem2),
-                                append([], In, In2),
-                                append([], Out, Out2);
+                                   Pc2 is Pc+1,
+                                   append([], Mem, Mem2),
+                                   append([], In, In2),
+                                   append([], Out, Out2);
+        % Sottrazione
         Istr >=200, Istr < 299 -> sottrazione(Acc, Pointer, Mem, Acc2, Flag2),
-                                Pc2 is Pc+1,
-                                append([], Mem, Mem2),
-                                append([], In, In2),
-                                append([], Out, Out2);
+                                  Pc2 is Pc+1,
+                                  append([], Mem, Mem2),
+                                  append([], In, In2),
+                                  append([], Out, Out2);
+        % Store                        
         Istr >= 300, Istr < 400 -> store(Acc, Pointer, Mem, Mem2),
-                                Acc2 is Acc,
-                                Pc2 is Pc+1,
-                                append([], In, In2),
-                                append([], Out, Out2),
-                                copy_term(Flag, Flag2);
+                                   Acc2 is Acc,
+                                   Pc2 is Pc+1,
+                                   append([], In, In2),
+                                   append([], Out, Out2),
+                                   copy_term(Flag, Flag2);
+        % Load                        
         Istr >= 500, Istr < 600 -> load(Acc2, Pointer, Mem),                                   
                                    Pc2 is Pc+1,
                                    append([], Mem, Mem2),
                                    append([], In, In2),
                                    append([], Out, Out2),
                                    copy_term(Flag, Flag2);
+        % Branch                                   
         Istr >= 600, Istr < 700 -> branch(Pc2, Pointer),
                                    Acc2 is Acc,
                                    append([], Mem, Mem2),
                                    append([], In, In2),
                                    append([], Out, Out2),
                                    copy_term(Flag, Flag2);
+        % Branch if zero                                   
         Istr >= 700, Istr < 800 -> branchifzero(Pc, Acc, Pointer, Flag, Pc2),
                                    Acc2 is Acc,
                                    append([], Mem, Mem2),
                                    append([], In, In2),
                                    append([], Out, Out2),
                                    copy_term(Flag, Flag2);
+        % Branch if positive                                   
         Istr >= 800, Istr < 900 -> branchifpositive(Pc, Pointer, Flag, Pc2),
                                    Acc2 is Acc,
                                    append([], Mem, Mem2),
                                    append([], In, In2),
                                    append([], Out, Out2),
                                    copy_term(Flag, Flag2);
+        % Input                                   
         Istr =  901, InEmpty \= 0 -> input(Acc2, In, In2),
-                       Pc2 is Pc+1,
-                       append([], Mem, Mem2),
-                       append([], Out, Out2),
-                       copy_term(Flag, Flag2);
-        InEmpty = 0 -> write("input vuoto");
+                                     Pc2 is Pc+1,
+                                     append([], Mem, Mem2),
+                                     append([], Out, Out2),
+                                     copy_term(Flag, Flag2);
+                                     InEmpty = 0 -> write("input vuoto");
+        % Output
         Istr =  902 -> output(Acc, Out, Out2),
                        Acc2 is Acc,
                        Pc2 is Pc+1,
                        append([], Mem, Mem2),
                        append([], In, In2),
                        copy_term(Flag, Flag2)                 
-    ).
+     ).
 
 
 %---------------------------------------------
@@ -274,14 +310,6 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
     numlist(0, 999, Out), % lista da 0 a 999
     member(Flag,  [flag, noflag]).*/
 %---------------------------------------------
-
-/* capisco numero istruzione */
-/*istruzione(Pc, Mem , I) :- randseq(99, 999, Mem),
-                           numlist(0, 99, L),
-                           member(Pc, L),
-                           nth0(Pc, Mem, I, _).*/
-
-/* istruzione nxx tengo xx */
 
 
 execution_loop(halted_state(Acc, Pc, Mem, In, Out, Flag), Out).
