@@ -156,36 +156,6 @@ lmc_halt :- halt.
 % LITTLE MAN COMPUTER
 
 /**
- * State
-*/
-
-/*state(Acc, Pc, Mem, In, Out, Flag) :-
-    numlist(0, 99, L), % lista da 0 a 99
-    member(Acc, L), % 0-99 check 
-    member(Pc, L), % 0-99 check
-    proper_length(Mem, MemLength),
-    MemLength < 100, % mem lunga massimo 99
-    MemLength >= 0,
-    max_member(MaxMem, Mem),
-    MaxMem < 1000, % massimo minore di 999
-    max_member(MinMem, Mem),
-    MinMem >= 0, 
-    max_member(MaxIn, In),
-    MaxIn< 1000,
-    min_member(MinIn, In),
-    MinIn >= 0, 
-    proper_length(In, InLength),
-    InLength >= 0,
-    max_member(MaxOut, Out),
-    MaxOut< 1000,
-    max_member(MinOut, Out),
-    MinOut >= 0, 
-    proper_length(Out, OutLength),
-    OutLength >= 0,
-    member(Flag,  [flag, noflag]).
-*/
-
-/**
  * Istruzione in memoria
  *
  * Estraggo l'istruzione in memoria puntata dal Program Counter
@@ -299,17 +269,6 @@ one_instruction(
                        copy_term(Flag, Flag2)                 
      ).
 
-
-%---------------------------------------------
-/*state(Acc, Pc, Mem, In, Out, Flag) :-
-    numlist(0, 99, L), % lista da 0 a 99
-    member(Acc, L), % 0-99 check 
-    member(Pc, L), % 0-99 check
-    randseq(99, 999, Mem), % 99 elementi random (range: 0-99)
-    numlist(0, 999, In), % lista da 0 a 999
-    numlist(0, 999, Out), % lista da 0 a 999
-    member(Flag,  [flag, noflag]).*/
-%---------------------------------------------
 
 
 execution_loop(halted_state(Acc, Pc, Mem, In, Out, Flag), Out).
