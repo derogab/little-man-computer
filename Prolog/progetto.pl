@@ -303,6 +303,13 @@ execution_loop(
 
 /* parsing */
 
+
+
+remove_all([], _, []).
+remove_all([X|T], X, L) :- remove_all(T, X, L).
+remove_all([H|T], X, [H|L]) :- H \= X,
+                                remove_all(T, X, L).
+
 /**
 * Rimuove i commenti
 */
@@ -324,9 +331,11 @@ search_label(FirstEmptyIndex, Row) :- split_string(Row, " ", "", Y), % splitta i
                               nth0(0, Words, Label, _),
                               assertz(tag(Label, FirstEmptyIndex)).
 
-exec(FirstEmptyIndex, Row, Instruction) :- split_string(Row, " ", "", Y), % splitta istruzione in parole
+exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
+                                           split_string(Command, " ", "", Y), % splitta istruzione in parole
                                            del_blank("", Y, Words), % eliminazione spazi inutili
-                                           proper_length(Words, WordsNum), % conteggio parole
+
+                                           proper_length(Words, WordsNum), % conteggio parole WordsNum /= 0,
                                            (
                                                 WordsNum = 1 -> single_command(Words, Instruction);
                                                 WordsNum = 2 -> command(Words, Instruction);
@@ -366,19 +375,20 @@ command_with_label([Label, Command, Value], Instruction, FirstEmptyIndex) :- str
                                                                              command([Command, Value], Instruction).
                                                                                                                           
 % TODO: lmc_load da terminare
-%lmc_load(Filename, Mem) :- open(Filename, read, In),
+row_to_mem([], [], 0) :- !.
+row_to_mem([LastRow], Mem, Pc) :- !,
+                                  exec(Pc, LastRow, Instruction),
+                                  Pc =< 100,
+                                  nth0(Pc, Mem, Instruction).
 
-getLines(L):-
-  setup_call_cleanup(
-    open('textFile.abc', read, In),
-    readData(In, L),
-    close(In)
-  ).
+row_to_mem([Row|OtherRows], Mem, Pc) :- exec(Pc, Row, Instruction),
+                                        Pc =< 100,
+                                        nth0(Pc, Mem, Instruction),
+                                        PcNew is Pc+1,
+                                        row_to_mem(OtherRows, Mem, PcNew).
 
-readData(In, L):-
-  read_term(In, H, []),
-  (   H == end_of_file
-  ->  L = []
-  ;   L = [H|T],
-      readData(In,T)
-  ).
+lmc_load(Filename, Mem) :- open(Filename, read, Input),
+                           read_string(Input, _, FileTxt),
+                           split_string(FileTxt, "\n", " ", Rows),
+                           remove_all(Rows, "", ClearRows),
+                           row_to_mem(ClearRows, Mem, 0).
