@@ -109,10 +109,6 @@ branchifzero(_, 0, Pointer, noflag, Pointer) :- !.
 branchifzero(Pc, _, _, noflag, NewPc) :- NewPc is (Pc + 1).
 branchifzero(Pc, _, _, flag, NewPc) :- NewPc is (Pc + 1).
 
-/*branchifzero(Pc, Acc, Pointer, Flag, NewPc) :- (Acc = 0, Flag = noflag)->
-                                               NewPc is Pointer;
-                                               NewPc is Pc+1.*/
-
 /**
  * Branch if positive
  * 
@@ -187,13 +183,34 @@ extract_pointer(I, X) :- X is (I mod 100).
  * - Eseguo
 */
 one_instruction(
-    
+
     state(Acc, Pc, Mem, In, Out, Flag),
     halted_state(Acc, Pc, Mem, In, Out, Flag)
 
-) :- instr_in_mem(Pc, Mem , Istr),
-     % illegal instruction
-     ((Istr >= 0, Istr < 100); (Istr >= 400, Istr < 500)),
+) :- instr_in_mem(Pc, Mem, Istr),
+     Istr >= 0,
+     Istr < 100,
+     !.
+
+one_instruction(
+
+    state(Acc, Pc, Mem, In, Out, Flag),
+    halted_state(Acc, Pc, Mem, In, Out, Flag)
+
+) :- instr_in_mem(Pc, Mem, Istr),
+     Istr >= 400,
+     Istr < 500,
+     !.
+
+one_instruction(
+
+    state(Acc, Pc, Mem, In, Out, Flag),
+    halted_state(Acc, Pc, Mem, In, Out, Flag)
+
+) :- instr_in_mem(Pc, Mem, Istr),
+     Istr >= 900,
+     Istr \= 901,
+     Istr \= 902,
      !.
 
 one_instruction(
@@ -203,69 +220,139 @@ one_instruction(
 
 ) :- instr_in_mem(Pc, Mem, Istr),
      extract_pointer(Istr, Pointer),
+     Istr >= 100,
+     Istr < 200,
+     addizione(Acc, Pointer, Mem, Acc2, Flag2),
+     Pc2 is Pc+1,
+     append([], Mem, Mem2),
+     append([], In, In2),
+     append([], Out, Out2).
+
+one_instruction(
+
+    state(Acc, Pc, Mem, In, Out, Flag), 
+    state(Acc2, Pc2, Mem2, In2, Out2, Flag2)
+
+) :- instr_in_mem(Pc, Mem, Istr),
+     extract_pointer(Istr, Pointer),
+     Istr >= 200,
+     Istr < 300,
+     sottrazione(Acc, Pointer, Mem, Acc2, Flag2),
+     Pc2 is Pc+1,
+     append([], Mem, Mem2),
+     append([], In, In2),
+     append([], Out, Out2).
+
+one_instruction(
+
+    state(Acc, Pc, Mem, In, Out, Flag), 
+    state(Acc2, Pc2, Mem2, In2, Out2, Flag2)
+
+) :- instr_in_mem(Pc, Mem, Istr),
+     extract_pointer(Istr, Pointer),
+     Istr >= 300,
+     Istr < 400,
+     store(Acc, Pointer, Mem, Mem2),
+     Acc2 is Acc,
+     Pc2 is Pc+1,
+     append([], In, In2),
+     append([], Out, Out2),
+     copy_term(Flag, Flag2).
+
+one_instruction(
+
+    state(Acc, Pc, Mem, In, Out, Flag), 
+    state(Acc2, Pc2, Mem2, In2, Out2, Flag2)
+
+) :- instr_in_mem(Pc, Mem, Istr),
+     extract_pointer(Istr, Pointer),
+     Istr >= 500,
+     Istr < 600,
+     load(Acc2, Pointer, Mem),                                   
+     Pc2 is Pc+1,
+     append([], Mem, Mem2),
+     append([], In, In2),
+     append([], Out, Out2),
+     copy_term(Flag, Flag2).
+
+one_instruction(
+
+    state(Acc, Pc, Mem, In, Out, Flag), 
+    state(Acc2, Pc2, Mem2, In2, Out2, Flag2)
+
+) :- instr_in_mem(Pc, Mem, Istr),
+     extract_pointer(Istr, Pointer),
+     Istr >= 600,
+     Istr < 700,
+     branch(Pc2, Pointer),
+     Acc2 is Acc,
+     append([], Mem, Mem2),
+     append([], In, In2),
+     append([], Out, Out2),
+     copy_term(Flag, Flag2).
+
+one_instruction(
+
+    state(Acc, Pc, Mem, In, Out, Flag), 
+    state(Acc2, Pc2, Mem2, In2, Out2, Flag2)
+
+) :- instr_in_mem(Pc, Mem, Istr),
+     extract_pointer(Istr, Pointer),
+     Istr >= 700,
+     Istr < 800,
+     branchifzero(Pc, Acc, Pointer, Flag, Pc2),
+     Acc2 is Acc,
+     append([], Mem, Mem2),
+     append([], In, In2),
+     append([], Out, Out2),
+     copy_term(Flag, Flag2).
+
+one_instruction(
+
+    state(Acc, Pc, Mem, In, Out, Flag), 
+    state(Acc2, Pc2, Mem2, In2, Out2, Flag2)
+
+) :- instr_in_mem(Pc, Mem, Istr),
+     extract_pointer(Istr, Pointer),
+     Istr >= 800,
+     Istr < 900,
+     branchifpositive(Pc, Pointer, Flag, Pc2),
+     Acc2 is Acc,
+     append([], Mem, Mem2),
+     append([], In, In2),
+     append([], Out, Out2),
+     copy_term(Flag, Flag2).
+
+one_instruction(
+
+    state(Acc, Pc, Mem, In, Out, Flag), 
+    state(Acc2, Pc2, Mem2, In2, Out2, Flag2)
+
+) :- instr_in_mem(Pc, Mem, Istr),
+     extract_pointer(Istr, Pointer),
+     Istr = 901,
      proper_length(In, InEmpty),
-     (
-        % Addizione
-        Istr >= 100, Istr < 199 -> addizione(Acc, Pointer, Mem, Acc2, Flag2),
-                                   Pc2 is Pc+1,
-                                   append([], Mem, Mem2),
-                                   append([], In, In2),
-                                   append([], Out, Out2);
-        % Sottrazione
-        Istr >=200, Istr < 299 -> sottrazione(Acc, Pointer, Mem, Acc2, Flag2),
-                                  Pc2 is Pc+1,
-                                  append([], Mem, Mem2),
-                                  append([], In, In2),
-                                  append([], Out, Out2);
-        % Store                        
-        Istr >= 300, Istr < 400 -> store(Acc, Pointer, Mem, Mem2),
-                                   Acc2 is Acc,
-                                   Pc2 is Pc+1,
-                                   append([], In, In2),
-                                   append([], Out, Out2),
-                                   copy_term(Flag, Flag2);
-        % Load                        
-        Istr >= 500, Istr < 600 -> load(Acc2, Pointer, Mem),                                   
-                                   Pc2 is Pc+1,
-                                   append([], Mem, Mem2),
-                                   append([], In, In2),
-                                   append([], Out, Out2),
-                                   copy_term(Flag, Flag2);
-        % Branch                                   
-        Istr >= 600, Istr < 700 -> branch(Pc2, Pointer),
-                                   Acc2 is Acc,
-                                   append([], Mem, Mem2),
-                                   append([], In, In2),
-                                   append([], Out, Out2),
-                                   copy_term(Flag, Flag2);
-        % Branch if zero                                   
-        Istr >= 700, Istr < 800 -> branchifzero(Pc, Acc, Pointer, Flag, Pc2),
-                                   Acc2 is Acc,
-                                   append([], Mem, Mem2),
-                                   append([], In, In2),
-                                   append([], Out, Out2),
-                                   copy_term(Flag, Flag2);
-        % Branch if positive                                   
-        Istr >= 800, Istr < 900 -> branchifpositive(Pc, Pointer, Flag, Pc2),
-                                   Acc2 is Acc,
-                                   append([], Mem, Mem2),
-                                   append([], In, In2),
-                                   append([], Out, Out2),
-                                   copy_term(Flag, Flag2);
-        % Input                                   
-        Istr =  901, InEmpty \= 0 -> input(Acc2, In, In2),
-                                     Pc2 is Pc+1,
-                                     append([], Mem, Mem2),
-                                     append([], Out, Out2),
-                                     copy_term(Flag, Flag2);
-        % Output
-        Istr =  902 -> output(Acc, Out, Out2),
-                       Acc2 is Acc,
-                       Pc2 is Pc+1,
-                       append([], Mem, Mem2),
-                       append([], In, In2),
-                       copy_term(Flag, Flag2)                 
-     ).
+     InEmpty \= 0,
+     input(Acc2, In, In2),
+     Pc2 is Pc+1,
+     append([], Mem, Mem2),
+     append([], Out, Out2),
+     copy_term(Flag, Flag2).
+
+one_instruction(
+
+    state(Acc, Pc, Mem, In, Out, Flag), 
+    state(Acc2, Pc2, Mem2, In2, Out2, Flag2)
+
+) :- instr_in_mem(Pc, Mem, Istr),
+     extract_pointer(Istr, Pointer),
+     Istr = 902,
+     output(Acc, Out, Out2),
+     Acc2 is Acc,
+     Pc2 is Pc+1,
+     append([], Mem, Mem2),
+     append([], In, In2),
+     copy_term(Flag, Flag2).
 
 /**
  * Execution Loop
