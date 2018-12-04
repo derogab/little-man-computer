@@ -517,16 +517,58 @@ single_command([Command], Instruction) :- string_lower(Command, CommandLower),
 command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
                                           normalize(Value, ValueNorm),
                                           assertz(tag([Command, Value], [Command, Value])),            
-                                          (
-                                            CommandLower = "add" -> string_concat("1", ValueNorm, Instruction);
-                                            CommandLower = "sub" -> string_concat("2", ValueNorm, Instruction);
-                                            CommandLower = "sta" -> string_concat("3", ValueNorm, Instruction);
-                                            CommandLower = "lda" -> string_concat("5", ValueNorm, Instruction);
-                                            CommandLower = "bra" -> string_concat("6", ValueNorm, Instruction);
-                                            CommandLower = "brz" -> string_concat("7", ValueNorm, Instruction);
-                                            CommandLower = "brp" -> string_concat("8", ValueNorm, Instruction);
-                                            CommandLower = "dat" -> copy_term(ValueNorm, Instruction)
-                                          ).
+                                          CommandLower = "add",
+                                          !,
+                                          string_concat("1", ValueNorm, Instruction).
+
+command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),
+                                          assertz(tag([Command, Value], [Command, Value])),            
+                                          CommandLower = "sub",
+                                          !,
+                                          string_concat("2", ValueNorm, Instruction).
+
+command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),
+                                          assertz(tag([Command, Value], [Command, Value])),            
+                                          CommandLower = "sta",
+                                          !,
+                                          string_concat("3", ValueNorm, Instruction).
+
+command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),
+                                          assertz(tag([Command, Value], [Command, Value])),            
+                                          CommandLower = "lda",
+                                          !,
+                                          string_concat("5", ValueNorm, Instruction).
+
+command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),
+                                          assertz(tag([Command, Value], [Command, Value])),            
+                                          CommandLower = "bra",
+                                          !,
+                                          string_concat("6", ValueNorm, Instruction).
+
+command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),
+                                          assertz(tag([Command, Value], [Command, Value])),            
+                                          CommandLower = "brz",
+                                          !,
+                                          string_concat("7", ValueNorm, Instruction).
+
+command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),
+                                          assertz(tag([Command, Value], [Command, Value])),            
+                                          CommandLower = "brp",
+                                          !,
+                                          string_concat("8", ValueNorm, Instruction).
+
+command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),
+                                          assertz(tag([Command, Value], [Command, Value])),            
+                                          CommandLower = "dat",
+                                          !,
+                                          copy_term(ValueNorm, Instruction).
 
 /**
  * Command with Label
