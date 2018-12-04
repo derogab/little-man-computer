@@ -14,7 +14,7 @@
  *
  * MEMO: Pointer contiene il valore già tranciato 
  * MEMO: Il risultato dovrà essere il nuovo accumulatore
-*/
+ */
 addizione(Acc, Pointer, Mem, X, flag) :- nth0(Pointer, Mem, Value, _),
                                          Y is Acc+Value,
                                          X is ((Acc+Value)mod 1000),
@@ -38,7 +38,7 @@ addizione(Acc, Pointer, Mem, X, noflag) :- nth0(Pointer, Mem, Value, _),
  *
  *
  * MEMO: Il risultato dovrà essere il nuovo accumulatore
-*/
+ */
 sottrazione(Acc, Pointer, Mem, X, flag) :- nth0(Pointer, Mem, Value, _),
                                            Y is Acc-Value,
                                            X is ((Acc-Value)mod 1000),
@@ -57,7 +57,7 @@ sottrazione(Acc, Pointer, Mem, X, noflag) :- nth0(Pointer, Mem, Value, _),
  * Salva il valore contenuto nell'accumulatore nella cella di memoria 
  * avente indirizzo xx. 
  * Il contenuto dell'accumulatore rimane invariato.
-*/
+ */
 store(Acc, Pointer, MemIn, MemOut) :- nth0(Pointer, MemIn, _, Varmem),
                                       nth0(Pointer, MemOut, Acc, Varmem).
 
@@ -69,7 +69,7 @@ store(Acc, Pointer, MemIn, MemOut) :- nth0(Pointer, MemIn, _, Varmem),
  * I numeri tra 400 e 499 non hanno un corrispettivo.
  * Corrispondono a delle istruzioni non valide (illegal instructions). 
  * Si fermerà con una condizione di errore.
-*/
+ */
 notfound(Pointer) :- write(Pointer), write(": illegal instruction").
 
 /**
@@ -79,7 +79,7 @@ notfound(Pointer) :- write(Pointer), write(": illegal instruction").
  * 
  * Scrive il valore contenuto nella cella di memoria di indirizzo xx nell'accumulatore. 
  * Il contenuto della cella di memoria rimane invariato.
-*/
+ */
 load(Acc, Pointer, MemIn) :- nth0(Pointer, MemIn, Acc, _).
 
 /**
@@ -91,7 +91,7 @@ load(Acc, Pointer, MemIn) :- nth0(Pointer, MemIn, Acc, _).
  * Imposta il valore del program counter a xx.
  *
  * branch(Pc, NewPointer4Pc) / 2
-*/
+ */
 branch(Pc, Pc).
 
 /**
@@ -104,7 +104,7 @@ branch(Pc, Pc).
  * il contenuto dell'accumulatore è zero e se il flag è assente.
  *
  * branchifzero(Pc, Acc, Pointer, Flag, NewPc) / 5
-*/
+ */
 branchifzero(_, 0, Pointer, noflag, Pointer) :- !.
 branchifzero(Pc, _, _, noflag, NewPc) :- NewPc is (Pc + 1).
 branchifzero(Pc, _, _, flag, NewPc) :- NewPc is (Pc + 1).
@@ -118,7 +118,7 @@ branchifzero(Pc, _, _, flag, NewPc) :- NewPc is (Pc + 1).
  * Imposta il valore del program counter a xx solamente se il flag è assente.
  *
  * branchifpositive(Pc, Pointer, Flag, NewPc) / 4
-*/
+ */
 branchifpositive(_, Pointer, noflag, Pointer) :- !.
 branchifpositive(Pc, _, flag, NewPc) :- NewPc is (Pc + 1).
 
@@ -129,7 +129,7 @@ branchifpositive(Pc, _, flag, NewPc) :- NewPc is (Pc + 1).
  *
  * Scrive il contenuto presente nella testa della coda in input 
  * nell'accumulatore e lo rimuove dalla coda di input.
-*/
+ */
 input(Acc, [Acc|NewQueueIn], NewQueueIn).
 
 /**
@@ -139,7 +139,7 @@ input(Acc, [Acc|NewQueueIn], NewQueueIn).
  *
  * Scrive il contenuto dell'accumulatore alla fine della coda di output. 
  * Il contenuto dell'accumulatore rimane invariato.
-*/
+ */
 output(Acc, QueueOut, NewQueueOut) :- append(QueueOut, [Acc], NewQueueOut).
 
 /**
@@ -149,7 +149,7 @@ output(Acc, QueueOut, NewQueueOut) :- append(QueueOut, [Acc], NewQueueOut).
  *
  * Termina l'esecuzione del programma. 
  * Nessuna ulteriore istruzione viene eseguita.
-*/
+ */
 lmc_halt :- halt.
 
 
@@ -162,7 +162,7 @@ lmc_halt :- halt.
  * Estraggo l'istruzione in memoria puntata dal Program Counter
  *
  * instr_in_mem(Pc, Mem, Instr) / 3
-*/
+ */
 instr_in_mem(Pc, Mem, Instruction) :- nth0(Pc, Mem, Instruction, _).
 
 /**
@@ -170,7 +170,7 @@ instr_in_mem(Pc, Mem, Instruction) :- nth0(Pc, Mem, Instruction, _).
  *
  * Estraggo il puntatore in memoria dall'istruzione
  * Esempio: da Ixx tengo xx
-*/
+ */
 extract_pointer(I, X) :- X is (I mod 100).
 
 /**
@@ -181,7 +181,7 @@ extract_pointer(I, X) :- X is (I mod 100).
  * - Estrai i dati dall'istruzione
  * - Controllo l'istruzione da eseguire
  * - Eseguo
-*/
+ */
 one_instruction(
 
     state(Acc, Pc, Mem, In, Out, Flag),
@@ -367,9 +367,7 @@ one_instruction(
  * MEMO: "Il predicato deve fallire nel caso l’esecuzione termini senza 
  * eseguire una istruzione di halt (ad esempio se si incontra una 
  * istruzione non valida)."
-*/
-
-
+ */
 execution_loop(
 
     halted_state(Acc, Pc, Mem, In, Out, Flag), 
@@ -385,32 +383,50 @@ execution_loop(
 ) :- one_instruction(state(Acc, Pc, Mem, In, Out, Flag), NewState),
      execution_loop(NewState, OutTot).
 
+
+
 % ISTRUZIONI ASSEMBLY
 
-
-/* parsing */
-
-
-
+/**
+ * Remove All
+ *
+ * Rimuove tutte le occorrenze di un elemento da una lista
+ *
+ * remove(List, Elem, NewList) / 3
+ */
 remove_all([], _, []).
 remove_all([X|T], X, L) :- remove_all(T, X, L).
 remove_all([H|T], X, [H|L]) :- H \= X,
                                 remove_all(T, X, L).
 
 /**
-* Rimuove i commenti
-*/
+ * Remove Comment
+ * 
+ * Rimuove i commenti da un comando
+ * Esempio: "add VALUE // comment" -> "add VALUE"
+ *
+ * remove_comment(Command, CommandWithoutComments) / 2
+ */
 remove_comment(Row, Command) :- split_string(Row, "//", " ", X),
                                 nth0(0, X, Command, _).
 
 /**
-* 
-*/
+ * del_blank
+ * 
+ * Rimozione stringhe vuote ?
+ *
+ * del_blank() / 3
+ */
 del_blank(X, [], []) :- !.
 del_blank(X, [X|Xs], Y) :- !, del_blank(X, Xs, Y).
 del_blank(X, [T|Xs], Y) :- !, del_blank(X, Xs, Y2), append([T], Y2, Y).
 
-
+/**
+ * Search Label
+ * 
+ * Ricerca label in una riga
+ * e memorizza l'associazione nella base di conoscenza.
+ */
 search_label(FirstEmptyIndex, Row) :- split_string(Row, " ", "", Y), % splitta istruzione in parole
                               del_blank("", Y, Words), % eliminazione spazi inutili                                           
                               proper_length(Words, WordsNum), % conteggio parole
@@ -418,6 +434,14 @@ search_label(FirstEmptyIndex, Row) :- split_string(Row, " ", "", Y), % splitta i
                               nth0(0, Words, Label, _),
                               assertz(tag(Label, FirstEmptyIndex)).
 
+/**
+ * Exec
+ *
+ * Esecuzione di una riga del programma
+ * Legge la riga e restituisce l'istruzione relativa
+ * 
+ * exec(FirstEmptyIndex, Row, Instruction) / 3
+ */
 exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
                                            split_string(Command, " ", "", Y), % splitta istruzione in parole
                                            del_blank("", Y, Words), % eliminazione spazi inutili
@@ -439,13 +463,28 @@ exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
                                            WordsNum = 3,
                                            command_with_label(Words, Instruction, FirstEmptyIndex).
 
-
+/**
+ * Normalize
+ * 
+ * Numero a 2 cifre
+ * Esempio: 4 -> 04, 12 -> 12
+ *
+ * normalize(Number, NumberNorm) / 2
+ */
 normalize(Number, NumberNorm) :- string_length(Number, Leng),
                                  (
                                     Leng = 1 -> string_concat("0",Number, NumberNorm);
                                     copy_term(Number, NumberNorm)
                                  ).
 
+/**
+ * Single Command
+ * 
+ * Esecuzione di un comando con un comando
+ * Restituisce l'istruzione relativa al comando
+ *
+ * single_command([Command], Instruction) / 2
+ */
 single_command([Command], Instruction) :- string_lower(Command, CommandLower),
                                           (
                                             CommandLower = "inp" -> copy_term("901", Instruction);
@@ -454,6 +493,14 @@ single_command([Command], Instruction) :- string_lower(Command, CommandLower),
                                             CommandLower = "dat" -> copy_term("000", Instruction)                                                                                       
                                           ).
 
+/**
+ * Command
+ * 
+ * Esecuzione di un comando con un comando e un valore (o label)
+ * Restituisce l'istruzione relativa al comando
+ *
+ * command([Command, Value], Instruction) / 2
+ */
 command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
                                           normalize(Value, ValueNorm),
                                           assertz(tag([Command, Value], [Command, Value])),            
@@ -467,13 +514,29 @@ command([Command, Value], Instruction) :- string_lower(Command, CommandLower),
                                             CommandLower = "brp" -> string_concat("8", ValueNorm, Instruction);
                                             CommandLower = "dat" -> copy_term(ValueNorm, Instruction)
                                           ).
+
+/**
+ * Command with Label
+ * 
+ * Esecuzione di un comando con una label, un comando e un valore (o label)
+ * Restituisce l'istruzione relativa al comando
+ *
+ * command_with_label([Label, Command, Value], Instruction, FirstEmptyIndex) / 3
+ */
 command_with_label([Label, Command, Value], Instruction, FirstEmptyIndex) :- string_lower(Command, CommandLower),  
                                                                              normalize(Value, ValueNorm),
                                                                              assertz(tag(Label, FirstEmptyIndex)),
                                                                              command([Command, Value], Instruction).
                                                                                                                           
-% TODO: lmc_load da terminare
+/**
+ * Row to Mem
+ * 
+ * Trascrive l'istruzione corrispondente ad un comando in memoria
+ *
+ * row_to_mem(Rows, Mem, Pc) / 3
+ */
 row_to_mem([], [], 0) :- !.
+
 row_to_mem([LastRow], Mem, Pc) :- !,
                                   exec(Pc, LastRow, Instruction),
                                   Pc =< 100,
@@ -485,6 +548,16 @@ row_to_mem([Row|OtherRows], Mem, Pc) :- exec(Pc, Row, Instruction),
                                         PcNew is Pc+1,
                                         row_to_mem(OtherRows, Mem, PcNew).
 
+/**
+ * LMC Loadssss
+ * 
+ * Legge il file assembler
+ * Scompatta le righe
+ * Legge i comandi sulle righe
+ * Inserisce in memoria le istruzioni relative ai comandi
+ *
+ * lmc_load(Filename, Mem) / 2
+ */
 lmc_load(Filename, Mem) :- open(Filename, read, Input),
                            read_string(Input, _, FileTxt),
                            split_string(FileTxt, "\n", " ", Rows),
