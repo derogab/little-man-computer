@@ -421,13 +421,24 @@ search_label(FirstEmptyIndex, Row) :- split_string(Row, " ", "", Y), % splitta i
 exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
                                            split_string(Command, " ", "", Y), % splitta istruzione in parole
                                            del_blank("", Y, Words), % eliminazione spazi inutili
-
                                            proper_length(Words, WordsNum), % conteggio parole WordsNum /= 0,
-                                           (
-                                                WordsNum = 1 -> single_command(Words, Instruction);
-                                                WordsNum = 2 -> command(Words, Instruction);
-                                                WordsNum = 3 -> command_with_label(Words, Instruction, FirstEmptyIndex)
-                                           ).
+                                           WordsNum = 1,
+                                           single_command(Words, Instruction).
+
+exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
+                                           split_string(Command, " ", "", Y), % splitta istruzione in parole
+                                           del_blank("", Y, Words), % eliminazione spazi inutili
+                                           proper_length(Words, WordsNum), % conteggio parole WordsNum /= 0,
+                                           WordsNum = 2,
+                                           command(Words, Instruction).
+
+exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
+                                           split_string(Command, " ", "", Y), % splitta istruzione in parole
+                                           del_blank("", Y, Words), % eliminazione spazi inutili
+                                           proper_length(Words, WordsNum), % conteggio parole WordsNum /= 0,
+                                           WordsNum = 3,
+                                           command_with_label(Words, Instruction, FirstEmptyIndex).
+
 
 normalize(Number, NumberNorm) :- string_length(Number, Leng),
                                  (
