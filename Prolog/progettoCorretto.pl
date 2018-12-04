@@ -375,3 +375,5 @@ execution_loop(
 
 ) :- one_instruction(state(Acc, Pc, Mem, In, Out, Flag), NewState),
      execution_loop(NewState, OutTot).
+
+/*aggiungere il resto */
