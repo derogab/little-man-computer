@@ -487,12 +487,24 @@ normalize(Number, Number).
  * single_command([Command], Instruction) / 2
  */
 single_command([Command], Instruction) :- string_lower(Command, CommandLower),
-                                          (
-                                            CommandLower = "inp" -> copy_term("901", Instruction);
-                                            CommandLower = "out" -> copy_term("902", Instruction);
-                                            CommandLower = "hlt" -> copy_term("001", Instruction);
-                                            CommandLower = "dat" -> copy_term("000", Instruction)                                                                                       
-                                          ).
+                                          CommandLower = "inp",
+                                          !,
+                                          copy_term("901", Instruction).
+
+single_command([Command], Instruction) :- string_lower(Command, CommandLower),
+                                          CommandLower = "out",
+                                          !,
+                                          copy_term("902", Instruction).
+
+single_command([Command], Instruction) :- string_lower(Command, CommandLower),
+                                          CommandLower = "hlt",
+                                          !,
+                                          copy_term("001", Instruction).
+
+single_command([Command], Instruction) :- string_lower(Command, CommandLower),
+                                          CommandLower = "dat",
+                                          !,
+                                          copy_term("000", Instruction).
 
 /**
  * Command
