@@ -472,10 +472,11 @@ exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
  * normalize(Number, NumberNorm) / 2
  */
 normalize(Number, NumberNorm) :- string_length(Number, Leng),
-                                 (
-                                    Leng = 1 -> string_concat("0",Number, NumberNorm);
-                                    copy_term(Number, NumberNorm)
-                                 ).
+                                 Leng = 1,
+                                 !,
+                                 string_concat("0", Number, NumberNorm).
+                                 
+normalize(Number, Number).
 
 /**
  * Single Command
