@@ -446,7 +446,14 @@ exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
                                            split_string(Command, " ", "", Y), % splitta istruzione in parole
                                            del_blank("", Y, Words), % eliminazione spazi inutili
                                            proper_length(Words, WordsNum), % conteggio parole WordsNum /= 0,
+                                           WordsNum = 0, !.
+
+exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
+                                           split_string(Command, " ", "", Y), % splitta istruzione in parole
+                                           del_blank("", Y, Words), % eliminazione spazi inutili
+                                           proper_length(Words, WordsNum), % conteggio parole WordsNum /= 0,
                                            WordsNum = 1,
+                                           !,
                                            single_command(Words, Instruction).
 
 exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
@@ -454,6 +461,7 @@ exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
                                            del_blank("", Y, Words), % eliminazione spazi inutili
                                            proper_length(Words, WordsNum), % conteggio parole WordsNum /= 0,
                                            WordsNum = 2,
+                                           !,
                                            command(Words, Instruction).
 
 exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
@@ -461,6 +469,7 @@ exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
                                            del_blank("", Y, Words), % eliminazione spazi inutili
                                            proper_length(Words, WordsNum), % conteggio parole WordsNum /= 0,
                                            WordsNum = 3,
+                                           !,
                                            command_with_label(Words, Instruction, FirstEmptyIndex).
 
 /**
@@ -604,7 +613,28 @@ row_to_mem([Row|OtherRows], Mem, Pc) :- exec(Pc, Row, Instruction),
                                         row_to_mem(OtherRows, Mem, PcNew).
 
 /**
- * LMC Loadssss
+ * Save Labels
+ * 
+ * Salva le label alla prima lettura
+ *
+ * save_labels(Rows, Mem, Pc) / 3
+ */
+save_labels([], 0) :- !.
+
+save_labels([LastRow], Pc) :- !,
+                              Pc =< 100,
+                              split_string(LastRow, " ", "", RowSplit),
+                              nth0(0, RowSplit, Label),
+                              write(Label),
+                              assertz(tag(Label, Pc)).
+
+save_labels([Row|OtherRows], Pc) :- Pc =< 100,
+
+                                    PcNew is Pc+1,
+                                    save_labels(OtherRows, PcNew).                                                                                            
+
+/**
+ * LMC Load
  * 
  * Legge il file assembler
  * Scompatta le righe
@@ -616,5 +646,8 @@ row_to_mem([Row|OtherRows], Mem, Pc) :- exec(Pc, Row, Instruction),
 lmc_load(Filename, Mem) :- open(Filename, read, Input),
                            read_string(Input, _, FileTxt),
                            split_string(FileTxt, "\n", " ", Rows),
-                           remove_all(Rows, "", ClearRows),
-                           row_to_mem(ClearRows, Mem, 0).
+                           del_blank("", Rows, ClearRows),
+                           save_labels(Rows, 0),
+                           write(ClearRows),
+                           row_to_mem(ClearRows, Mem, 0),
+                           write(Mem).
