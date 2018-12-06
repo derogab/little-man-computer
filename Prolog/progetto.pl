@@ -202,6 +202,17 @@ one_instruction(
      Istr < 500,
      !.
 
+/*one_instruction(
+
+    state(Acc, Pc, Mem, In, Out, Flag),
+    halted_state(Acc, Pc, Mem, In, Out, Flag)
+
+) :- instr_in_mem(Pc, Mem, Istr),
+     proper_length(In, Input),
+     Input is 0,
+     Instr is 901,
+     !.
+*/
 one_instruction(
 
     state(Acc, Pc, Mem, In, Out, Flag),
@@ -331,8 +342,8 @@ one_instruction(
 ) :- instr_in_mem(Pc, Mem, Istr),
      extract_pointer(Istr, Pointer),
      Istr = 901,
-     proper_length(In, InEmpty),
-     InEmpty \= 0,
+     %proper_length(In, InEmpty),
+     %InEmpty \= 0,
      input(Acc2, In, In2),
      Pc2 is Pc+1,
      append([], Mem, Mem2),
@@ -381,6 +392,7 @@ execution_loop(
     OutTot
 
 ) :- one_instruction(state(Acc, Pc, Mem, In, Out, Flag), NewState),
+    Pc < 100,
      execution_loop(NewState, OutTot).
 
 
@@ -802,6 +814,8 @@ lmc_load(Filename, Mem) :- open(Filename, read, Input),
 
 lmc_run(Filename, In, Output) :- lmc_load(Filename, Mem),
                                  memToNumber(Mem, MemNumber, 0),
+                                 write("ecco la memoria\n"),
+                                 write(MemNumber),
                                  execution_loop(state(0, 0, MemNumber, In, [], noflag), Out),
                                  Output is Out,!.
 
