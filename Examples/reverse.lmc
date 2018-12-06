@@ -2,7 +2,7 @@ load    inp         // read the input
         brz clean    // if zero start printing
         sta tmp     // store the number in a temporary variable
         lda sp      // load the stack pointer
-        add sto_op  // add the "base" of the store opcode
+        add stoop  // add the "base" of the store opcode
         sta inst1   // store the generated instruction in memory
         lda tmp     // load the input number in the accumulator
         bra inst1   // jump to the generate instruction
@@ -16,7 +16,7 @@ clean   lda sp      // cleaning routine: we make the stack pointer ...
 print   brp cont    // check if we reached the end of the stack
         hlt         // if so, stop
 cont    lda sp      // load the stack pointer
-        add lda_op  // add the "base" for the load opcode
+        add ldaop  // add the "base" for the load opcode
         sta inst2   // store the generate instruction in memory
         bra inst2   // jump to the generated instruction
 ret2    out         // output the number in the accumulator
@@ -31,7 +31,7 @@ inst2   dat 0       // location of the second generated instruction
         bra ret2    // return to the caller
 one     dat 1
 tmp     dat
-lda_op  dat 500
-sto_op  dat 300
+ldaop  dat 500
+stoop  dat 300
 ssize   dat 900
 sp      dat 99       // stack pointer (initial value: top of the memory)
