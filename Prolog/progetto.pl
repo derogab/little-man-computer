@@ -621,15 +621,25 @@ row_to_mem([Row|OtherRows], Mem, Pc) :- exec(Pc, Row, Instruction),
  */
 save_labels([], 0) :- !.
 
+save_labels([LastRow], Pc) :- Pc < 100,
+                              remove_comment(LastRow, Command),
+                              split_string(Command, " ", "", Words),
+                              proper_length(Words, WordsNum),
+                              WordsNum < 3,
+                              !.
+
 save_labels([LastRow], Pc) :- !,
-                              Pc =< 100,
-                              split_string(LastRow, " ", "", RowSplit),
-                              nth0(0, RowSplit, Label),
-                              write(Label),
+                              Pc < 100,
+                              remove_comment(LastRow, Command),
+                              split_string(Command, " ", "", Words),
+                              proper_length(Words, WordsNum),
+                              WordsNum = 3,
+                              !,
+                              nth0(0, Words, Label),
                               assertz(tag(Label, Pc)).
 
-save_labels([Row|OtherRows], Pc) :- Pc =< 100,
-
+save_labels([Row|OtherRows], Pc) :- !,
+                                    save_labels([Row], Pc),
                                     PcNew is Pc+1,
                                     save_labels(OtherRows, PcNew).                                                                                            
 
@@ -647,7 +657,7 @@ lmc_load(Filename, Mem) :- open(Filename, read, Input),
                            read_string(Input, _, FileTxt),
                            split_string(FileTxt, "\n", " ", Rows),
                            del_blank("", Rows, ClearRows),
-                           save_labels(Rows, 0),
                            write(ClearRows),
+                           save_labels(ClearRows, 0),
                            row_to_mem(ClearRows, Mem, 0),
                            write(Mem).
