@@ -427,12 +427,26 @@ del_blank(X, [T|Xs], Y) :- !, del_blank(X, Xs, Y2), append([T], Y2, Y).
  * Ricerca label in una riga
  * e memorizza l'associazione nella base di conoscenza.
  */
-search_label(FirstEmptyIndex, Row) :- split_string(Row, " ", "", Y), % splitta istruzione in parole
+search_label(FirstEmptyIndex, Row) :- split_string(Row, " ", " ", Y), % splitta istruzione in parole
                               del_blank("", Y, Words), % eliminazione spazi inutili                                           
                               proper_length(Words, WordsNum), % conteggio parole
                               WordsNum = 3,
                               nth0(0, Words, Label, _),
                               assertz(tag(Label, FirstEmptyIndex)).
+
+/**
+ * noInstr
+ *
+ * Check se è un'istruzione
+ * 
+ * noInstr() / 2
+ */
+noInstr(_,[]) :- !.
+
+noInstr(X,[X|_]) :-!,
+                   fail.
+noInstr(X,[_|T]) :- !,
+                    noInstr(X,T).
 
 /**
  * Exec
@@ -455,6 +469,20 @@ exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
                                            WordsNum = 1,
                                            !,
                                            single_command(Words, Instruction).
+
+exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
+                                           split_string(Command, " ", "", Y), % splitta istruzione in parole
+                                           del_blank("", Y, Words), % eliminazione spazi inutili
+                                           proper_length(Words, WordsNum), % conteggio parole WordsNum /= 0,
+                                           WordsNum = 2,
+                                           nth0(0, Words, Elem),
+                                           write(Words),
+                                           string_lower(Elem, Eleml),
+                                           write(Eleml),
+                                           noInstr(Eleml, ["add", "sub", "sta", "lda", "bra", "brz", "brp", "inp", "out", "hlt", "dat"]),
+                                           !,
+                                           write("2 elementi --> salvo label"),
+                                           command_with_label2(Words, Instruction, FirstEmptyIndex).
 
 exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
                                            split_string(Command, " ", "", Y), % splitta istruzione in parole
@@ -652,9 +680,12 @@ command([Command, Label], Instruction) :- tag(Label, Value),
  */
 command_with_label([Label, Command, Value], Instruction, FirstEmptyIndex) :- string_lower(Command, CommandLower),  
                                                                              normalize(Value, ValueNorm),
-                                                                             assertz(tag(Label, FirstEmptyIndex)),
-                                                                             command([Command, Value], Instruction).
-                                                                                                                          
+                                                                             %assertz(tag(Label, FirstEmptyIndex)),
+                                                                             command([CommandLower, Value], Instruction).
+
+command_with_label2([Label, Command], Instruction, FirstEmptyIndex) :- string_lower(Command, CommandLower),  
+                                                                       %assertz(tag(Label, FirstEmptyIndex)),
+                                                                       single_command([CommandLower], Instruction).                                                                                                                     
 /**
  * Row to Mem
  * 
@@ -686,15 +717,31 @@ save_labels([], 0) :- !.
 
 save_labels([LastRow], Pc) :- Pc < 100,
                               remove_comment(LastRow, Command),
-                              split_string(Command, " ", "", Words),
+                              split_string(Command, " ", " ", Words),
                               proper_length(Words, WordsNum),
-                              WordsNum < 3,
+                              WordsNum < 2,
                               !.
 
-save_labels([LastRow], Pc) :- !,
-                              Pc < 100,
+save_labels([LastRow], Pc) :- Pc < 100,
                               remove_comment(LastRow, Command),
-                              split_string(Command, " ", "", Words),
+                              split_string(Command, " ", " ", Words),
+                              proper_length(Words, WordsNum),
+                              WordsNum = 2,
+                              nth0(0, Words, Label),
+                              noInstr(Label, ["add", "sub", "sta", "lda", "bra", "brz", "brp", "inp", "out", "hlt", "dat"]),
+                              !, 
+                              assertz(tag(Label, Pc)).
+
+save_labels([LastRow], Pc) :- Pc < 100,
+                              remove_comment(LastRow, Command),
+                              split_string(Command, " ", " ", Words),
+                              proper_length(Words, WordsNum),
+                              WordsNum = 2,
+                              !.
+
+save_labels([LastRow], Pc) :- Pc < 100,
+                              remove_comment(LastRow, Command),
+                              split_string(Command, " ", " ", Words),
                               proper_length(Words, WordsNum),
                               WordsNum = 3,
                               !,
