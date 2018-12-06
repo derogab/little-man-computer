@@ -476,12 +476,12 @@ exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
                                            proper_length(Words, WordsNum), % conteggio parole WordsNum /= 0,
                                            WordsNum = 2,
                                            nth0(0, Words, Elem),
-                                           write(Words),
+                                          % write(Words),
                                            string_lower(Elem, Eleml),
-                                           write(Eleml),
+                                          % write(Eleml),
                                            noInstr(Eleml, ["add", "sub", "sta", "lda", "bra", "brz", "brp", "inp", "out", "hlt", "dat"]),
                                            !,
-                                           write("2 elementi --> salvo label"),
+                                           %write("2 elementi --> salvo label"),
                                            command_with_label2(Words, Instruction, FirstEmptyIndex).
 
 exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
@@ -536,7 +536,7 @@ single_command([Command], Instruction) :- string_lower(Command, CommandLower),
 single_command([Command], Instruction) :- string_lower(Command, CommandLower),
                                           CommandLower = "hlt",
                                           !,
-                                          copy_term("001", Instruction).
+                                          copy_term("000", Instruction).
 
 single_command([Command], Instruction) :- string_lower(Command, CommandLower),
                                           CommandLower = "dat",
@@ -552,7 +552,7 @@ single_command([Command], Instruction) :- string_lower(Command, CommandLower),
  * command([Command, Value], Instruction) / 2
  */
 command([Command, Value], Instruction) :- number_string(_, Value),
-                                          !,
+                                          
                                           string_lower(Command, CommandLower), 
                                           normalize(Value, ValueNorm),           
                                           CommandLower = "add",
@@ -567,7 +567,7 @@ command([Command, Label], Instruction) :- tag(Label, Value),
                                           string_concat("1", ValueNorm, Instruction).
 
 command([Command, Value], Instruction) :- number_string(_, Value),
-                                          !,
+                                          
                                           string_lower(Command, CommandLower), 
                                           normalize(Value, ValueNorm),          
                                           CommandLower = "sub",
@@ -582,7 +582,7 @@ command([Command, Label], Instruction) :- tag(Label, Value),
                                           string_concat("2", ValueNorm, Instruction).
 
 command([Command, Value], Instruction) :- number_string(_, Value),
-                                          !, 
+                                          
                                           string_lower(Command, CommandLower), 
                                           normalize(Value, ValueNorm),           
                                           CommandLower = "sta",
@@ -597,7 +597,7 @@ command([Command, Label], Instruction) :- tag(Label, Value),
                                           string_concat("3", ValueNorm, Instruction).
 
 command([Command, Value], Instruction) :- number_string(_, Value),
-                                          !,
+                                          
                                           string_lower(Command, CommandLower), 
                                           normalize(Value, ValueNorm),           
                                           CommandLower = "lda",
@@ -612,7 +612,7 @@ command([Command, Label], Instruction) :- tag(Label, Value),
                                           string_concat("5", ValueNorm, Instruction).
 
 command([Command, Value], Instruction) :- number_string(_, Value),
-                                          !,
+                                          
                                           string_lower(Command, CommandLower), 
                                           normalize(Value, ValueNorm),           
                                           CommandLower = "bra",
@@ -627,7 +627,7 @@ command([Command, Label], Instruction) :- tag(Label, Value),
                                           string_concat("6", ValueNorm, Instruction).
 
 command([Command, Value], Instruction) :- number_string(_, Value),
-                                          !,
+                                          
                                           string_lower(Command, CommandLower), 
                                           normalize(Value, ValueNorm),           
                                           CommandLower = "brz",
@@ -642,7 +642,7 @@ command([Command, Label], Instruction) :- tag(Label, Value),
                                           string_concat("7", ValueNorm, Instruction).
 
 command([Command, Value], Instruction) :- number_string(_, Value),
-                                          !,
+                                          
                                           string_lower(Command, CommandLower), 
                                           normalize(Value, ValueNorm),           
                                           CommandLower = "brp",
@@ -657,7 +657,7 @@ command([Command, Label], Instruction) :- tag(Label, Value),
                                           string_concat("8", ValueNorm, Instruction).
 
 command([Command, Value], Instruction) :- number_string(_, Value),
-                                          !,
+                                          
                                           string_lower(Command, CommandLower), 
                                           normalize(Value, ValueNorm),           
                                           CommandLower = "dat",
@@ -693,18 +693,21 @@ command_with_label2([Label, Command], Instruction, FirstEmptyIndex) :- string_lo
  *
  * row_to_mem(Rows, Mem, Pc) / 3
  */
-row_to_mem([], [], 0) :- !.
 
-row_to_mem([LastRow], Mem, Pc) :- !,
+ replace(X, L, I, L2) :- nth0(X, L, _, L3), 
+                         nth0(X, L2, I, L3).
+row_to_mem([], [], 0, []) :- !.
+
+row_to_mem([LastRow], Mem, Pc, MemOut) :- !,
                                   exec(Pc, LastRow, Instruction),
                                   Pc =< 100,
-                                  nth0(Pc, Mem, Instruction).
+                                  replace(Pc, Mem, Instruction, MemOut).
 
-row_to_mem([Row|OtherRows], Mem, Pc) :- exec(Pc, Row, Instruction),
+row_to_mem([Row|OtherRows], Mem, Pc, MemOut) :- exec(Pc, Row, Instruction),
                                         Pc =< 100,
-                                        nth0(Pc, Mem, Instruction),
+                                        replace(Pc, Mem, Instruction, MemOutNew),
                                         PcNew is Pc+1,
-                                        row_to_mem(OtherRows, Mem, PcNew).
+                                        row_to_mem(OtherRows, MemOutNew, PcNew, MemOut).
 
 /**
  * Save Labels
@@ -768,14 +771,39 @@ noComment([], []).
 noComment([H | T], [H2| T2]) :- remove_comment(H, H2),
                                 noComment(T, T2).
 
+memg(L, NewMem) :- proper_length(L, X),
+                X<100,
+                append(["0"], L, Mem),
+                memg(Mem, NewMem), !.
+memg(Mem, Mem) :-!.
+
+memToNumber(Mem, MemNumber, X) :- proper_length(Mem, N),
+                                    X<100,
+                                 nth0(X, Mem, Elem),
+                                 number_string(Num, Elem),
+                                 NewX is X+1,
+                                 replace(X, Mem, Num, MemNumber2),
+                                 memToNumber(MemNumber2, MemNumber, NewX),!.
+memToNumber(Mem, Mem, _) :- !.
+
+
+
+
 lmc_load(Filename, Mem) :- open(Filename, read, Input),
                            read_string(Input, _, FileTxt),
                            split_string(FileTxt, "\n", " ", Rows),
                            del_blank("", Rows, ClearRows),
                            %write(ClearRows),
-                           /*noComment(ClearRows, NoCommentList),
+                           noComment(ClearRows, NoCommentList),
                            delete(NoCommentList, "", CommandList),
-                           write(CommandList),*/
-                           save_labels(ClearRows, 0),
-                           row_to_mem(ClearRows, Mem, 0),
-                           write(Mem).
+                           save_labels(CommandList, 0),
+                           memg([], MemV),
+                           row_to_mem(CommandList, MemV, 0, Mem).
+
+lmc_run(Filename, In, Output) :- lmc_load(Filename, Mem),
+                                 memToNumber(Mem, MemNumber, 0),
+                                 execution_loop(state(0, 0, MemNumber, In, [], noflag), Out),
+                                 Output is Out,!.
+
+
+
