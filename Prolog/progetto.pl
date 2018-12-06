@@ -523,62 +523,125 @@ single_command([Command], Instruction) :- string_lower(Command, CommandLower),
  *
  * command([Command, Value], Instruction) / 2
  */
-command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
-                                          normalize(Value, ValueNorm),
-                                          assertz(tag([Command, Value], [Command, Value])),            
+command([Command, Value], Instruction) :- number_string(_, Value),
+                                          !,
+                                          string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),           
                                           CommandLower = "add",
                                           !,
                                           string_concat("1", ValueNorm, Instruction).
 
-command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
-                                          normalize(Value, ValueNorm),
-                                          assertz(tag([Command, Value], [Command, Value])),            
+command([Command, Label], Instruction) :- tag(Label, Value),
+                                          string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),           
+                                          CommandLower = "add",
+                                          !,
+                                          string_concat("1", ValueNorm, Instruction).
+
+command([Command, Value], Instruction) :- number_string(_, Value),
+                                          !,
+                                          string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),          
                                           CommandLower = "sub",
                                           !,
                                           string_concat("2", ValueNorm, Instruction).
 
-command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
-                                          normalize(Value, ValueNorm),
-                                          assertz(tag([Command, Value], [Command, Value])),            
+command([Command, Label], Instruction) :- tag(Label, Value),
+                                          string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),          
+                                          CommandLower = "sub",
+                                          !,
+                                          string_concat("2", ValueNorm, Instruction).
+
+command([Command, Value], Instruction) :- number_string(_, Value),
+                                          !, 
+                                          string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),           
                                           CommandLower = "sta",
                                           !,
                                           string_concat("3", ValueNorm, Instruction).
 
-command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
-                                          normalize(Value, ValueNorm),
-                                          assertz(tag([Command, Value], [Command, Value])),            
+command([Command, Label], Instruction) :- tag(Label, Value),
+                                          string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),           
+                                          CommandLower = "sta",
+                                          !,
+                                          string_concat("3", ValueNorm, Instruction).
+
+command([Command, Value], Instruction) :- number_string(_, Value),
+                                          !,
+                                          string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),           
                                           CommandLower = "lda",
                                           !,
                                           string_concat("5", ValueNorm, Instruction).
 
-command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
-                                          normalize(Value, ValueNorm),
-                                          assertz(tag([Command, Value], [Command, Value])),            
+command([Command, Label], Instruction) :- tag(Label, Value),
+                                          string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),           
+                                          CommandLower = "lda",
+                                          !,
+                                          string_concat("5", ValueNorm, Instruction).
+
+command([Command, Value], Instruction) :- number_string(_, Value),
+                                          !,
+                                          string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),           
                                           CommandLower = "bra",
                                           !,
                                           string_concat("6", ValueNorm, Instruction).
 
-command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
-                                          normalize(Value, ValueNorm),
-                                          assertz(tag([Command, Value], [Command, Value])),            
+command([Command, Label], Instruction) :- tag(Label, Value),
+                                          string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),           
+                                          CommandLower = "bra",
+                                          !,
+                                          string_concat("6", ValueNorm, Instruction).
+
+command([Command, Value], Instruction) :- number_string(_, Value),
+                                          !,
+                                          string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),           
                                           CommandLower = "brz",
                                           !,
                                           string_concat("7", ValueNorm, Instruction).
 
-command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
-                                          normalize(Value, ValueNorm),
-                                          assertz(tag([Command, Value], [Command, Value])),            
+command([Command, Label], Instruction) :- tag(Label, Value),
+                                          string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),           
+                                          CommandLower = "brz",
+                                          !,
+                                          string_concat("7", ValueNorm, Instruction).
+
+command([Command, Value], Instruction) :- number_string(_, Value),
+                                          !,
+                                          string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),           
                                           CommandLower = "brp",
                                           !,
                                           string_concat("8", ValueNorm, Instruction).
 
-command([Command, Value], Instruction) :- string_lower(Command, CommandLower), 
-                                          normalize(Value, ValueNorm),
-                                          assertz(tag([Command, Value], [Command, Value])),            
+command([Command, Label], Instruction) :- tag(Label, Value),
+                                          string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),           
+                                          CommandLower = "brp",
+                                          !,
+                                          string_concat("8", ValueNorm, Instruction).
+
+command([Command, Value], Instruction) :- number_string(_, Value),
+                                          !,
+                                          string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),           
                                           CommandLower = "dat",
                                           !,
                                           copy_term(ValueNorm, Instruction).
 
+command([Command, Label], Instruction) :- tag(Label, Value),
+                                          string_lower(Command, CommandLower), 
+                                          normalize(Value, ValueNorm),           
+                                          CommandLower = "dat",
+                                          !,
+                                          copy_term(ValueNorm, Instruction).
 /**
  * Command with Label
  * 
@@ -653,11 +716,19 @@ save_labels([Row|OtherRows], Pc) :- !,
  *
  * lmc_load(Filename, Mem) / 2
  */
+
+noComment([], []).
+noComment([H | T], [H2| T2]) :- remove_comment(H, H2),
+                                noComment(T, T2).
+
 lmc_load(Filename, Mem) :- open(Filename, read, Input),
                            read_string(Input, _, FileTxt),
                            split_string(FileTxt, "\n", " ", Rows),
                            del_blank("", Rows, ClearRows),
-                           write(ClearRows),
+                           %write(ClearRows),
+                           /*noComment(ClearRows, NoCommentList),
+                           delete(NoCommentList, "", CommandList),
+                           write(CommandList),*/
                            save_labels(ClearRows, 0),
                            row_to_mem(ClearRows, Mem, 0),
                            write(Mem).
