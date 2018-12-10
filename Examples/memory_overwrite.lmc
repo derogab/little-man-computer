@@ -1,0 +1,41 @@
+// This program illustrates one of the issues with memory being 
+// used for both instructions and data. As the program runs, numbers 
+// are INPUT and stored in memory locations 0 onwards. When memory 
+// location 10 is reached the instructions in the main program loop 
+// start to be overwritten with data, causing the program to stop 
+// running correctly as the LMC tries to interpret the data as 
+// an instruction.
+
+BRA writeLoop
+s1 DAT
+s2 DAT
+s3 DAT
+s4 DAT
+s5 DAT
+s6 DAT
+s7 DAT
+s8 DAT
+s9 DAT
+writeLoop INP
+BRZ readLoop
+writeStart DAT 300
+LDA writeStart 
+ADD one
+STA writeStart
+LDA count
+ADD one
+STA count
+BRA writeLoop 
+readLoop LDA count
+SUB one
+STA count
+BRZ done
+readStart DAT 500
+OUT
+LDA readStart
+ADD one
+STA readStart
+BRA readLoop 
+done HLT
+count DAT 1
+one DAT 1

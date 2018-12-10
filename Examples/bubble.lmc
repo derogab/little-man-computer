@@ -1,3 +1,7 @@
+// A sorting program, input values are stored from memory address 80 onwards 
+// (therefore a maximum of 20 numbers can be sorted). 
+// An input of 0 starts the sort. 
+
 inputLoop INP
 BRZ sortLoop
 store DAT 380

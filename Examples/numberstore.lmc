@@ -1,4 +1,15 @@
-//this program illustrates the LMC equivalent of an array, storing each successive INPUT in successive memory locations and counting (the equivalent of the array index) how many numbers are input. The numbers are then OUTPUT in the same order they were entered when a zero is entered. To do this the program has to alter some instructions as it runs. It does this by treating them as data (they are loaded, altered and saved) and in this program the 'data' values 350 and 550 are treated as STA (store) and LDA (load) instructions respectively by the LMC. This 'data' is altered as the program runs by adding a 1 to it so that it stores INPUT values in memory locations 50 onwards. 
+// this program illustrates the LMC equivalent of an array, 
+// storing each successive INPUT in successive memory locations 
+// and counting (the equivalent of the array index) how many numbers 
+// are input. The numbers are then OUTPUT in the same order they 
+// were entered when a zero is entered. To do this the program has to 
+// alter some instructions as it runs. It does this by treating them as 
+// data (they are loaded, altered and saved) and in this program the 
+// 'data' values 350 and 550 are treated as STA (store) and LDA (load) 
+// instructions respectively by the LMC. This 'data' is altered as the
+// program runs by adding a 1 to it so that it stores INPUT values in 
+// memory locations 50 onwards. 
+
 writeLoop INP
 BRZ readLoop
 writeStart DAT 350
