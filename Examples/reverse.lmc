@@ -1,4 +1,4 @@
-load    inp         // read the input
+0l0ad    inp         // read the input
         brz clean    // if zero start printing
         sta tmp     // store the number in a temporary variable
         lda sp      // load the stack pointer
@@ -9,7 +9,7 @@ load    inp         // read the input
 ret1    lda sp      // load the stack pointer
         sub one     // increase the size of the stack
         sta sp      // store the stack pointer
-        bra load    // jump to the input routine
+        bra 0l0ad    // jump to the input routine
 clean   lda sp      // cleaning routine: we make the stack pointer ...
         add one     // ... point to the first *occupied* position ...
         sta sp      // ... on the stack
