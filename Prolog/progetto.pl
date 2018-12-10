@@ -15,12 +15,14 @@
  * MEMO: Pointer contiene il valore già tranciato 
  * MEMO: Il risultato dovrà essere il nuovo accumulatore
  */
-addizione(Acc, Pointer, Mem, X, flag) :- nth0(Pointer, Mem, Value, _),
+addizione(Acc, Pointer, Mem, X, flag) :- 
+    nth0(Pointer, Mem, Value, _),
     Y is Acc+Value,
     X is ((Acc+Value)mod 1000),
     Y > 999,
     !.
-addizione(Acc, Pointer, Mem, X, noflag) :- nth0(Pointer, Mem, Value, _),
+addizione(Acc, Pointer, Mem, X, noflag) :- 
+    nth0(Pointer, Mem, Value, _),
     Y is Acc+Value,
     X is ((Acc+Value)mod 1000),
     Y < 1000.
@@ -39,12 +41,14 @@ addizione(Acc, Pointer, Mem, X, noflag) :- nth0(Pointer, Mem, Value, _),
  *
  * MEMO: Il risultato dovrà essere il nuovo accumulatore
  */
-sottrazione(Acc, Pointer, Mem, X, flag) :- nth0(Pointer, Mem, Value, _),
+sottrazione(Acc, Pointer, Mem, X, flag) :- 
+    nth0(Pointer, Mem, Value, _),
     Y is Acc-Value,
     X is ((Acc-Value)mod 1000),
     Y < 0,
     !.
-sottrazione(Acc, Pointer, Mem, X, noflag) :- nth0(Pointer, Mem, Value, _),
+sottrazione(Acc, Pointer, Mem, X, noflag) :- 
+    nth0(Pointer, Mem, Value, _),
     Y is Acc-Value,
     X is ((Acc-Value)mod 1000),
     Y >= 0.
@@ -58,7 +62,8 @@ sottrazione(Acc, Pointer, Mem, X, noflag) :- nth0(Pointer, Mem, Value, _),
  * avente indirizzo xx. 
  * Il contenuto dell'accumulatore rimane invariato.
  */
-store(Acc, Pointer, MemIn, MemOut) :- nth0(Pointer, MemIn, _, Varmem),
+store(Acc, Pointer, MemIn, MemOut) :- 
+    nth0(Pointer, MemIn, _, Varmem),
     nth0(Pointer, MemOut, Acc, Varmem).
 
 /**
@@ -70,17 +75,21 @@ store(Acc, Pointer, MemIn, MemOut) :- nth0(Pointer, MemIn, _, Varmem),
  * Corrispondono a delle istruzioni non valide (illegal instructions). 
  * Si fermerà con una condizione di errore.
  */
-notfound(Pointer) :- write(Pointer), write(": illegal instruction").
+notfound(Pointer) :- 
+    write(Pointer), 
+    write(": illegal instruction").
 
 /**
  * Load
  * 
  * Instruction: 5xx
  * 
- * Scrive il valore contenuto nella cella di memoria di indirizzo xx nell'accumulatore. 
+ * Scrive il valore contenuto nella cella di memoria di indirizzo 
+ * xx nell'accumulatore. 
  * Il contenuto della cella di memoria rimane invariato.
  */
-load(Acc, Pointer, MemIn) :- nth0(Pointer, MemIn, Acc, _).
+load(Acc, Pointer, MemIn) :- 
+    nth0(Pointer, MemIn, Acc, _).
 
 /**
  * Branch
@@ -105,9 +114,14 @@ branch(Pc, Pc).
  *
  * branchifzero(Pc, Acc, Pointer, Flag, NewPc) / 5
  */
-branchifzero(_, 0, Pointer, noflag, Pointer) :- !.
-branchifzero(Pc, _, _, noflag, NewPc) :- NewPc is (Pc + 1).
-branchifzero(Pc, _, _, flag, NewPc) :- NewPc is (Pc + 1).
+branchifzero(_, 0, Pointer, noflag, Pointer) :- 
+    !.
+
+branchifzero(Pc, _, _, noflag, NewPc) :- 
+    NewPc is (Pc + 1).
+
+branchifzero(Pc, _, _, flag, NewPc) :- 
+    NewPc is (Pc + 1).
 
 /**
  * Branch if positive
@@ -119,8 +133,10 @@ branchifzero(Pc, _, _, flag, NewPc) :- NewPc is (Pc + 1).
  *
  * branchifpositive(Pc, Pointer, Flag, NewPc) / 4
  */
-branchifpositive(_, Pointer, noflag, Pointer) :- !.
-branchifpositive(Pc, _, flag, NewPc) :- NewPc is (Pc + 1).
+branchifpositive(_, Pointer, noflag, Pointer) :- 
+    !.
+branchifpositive(Pc, _, flag, NewPc) :- 
+    NewPc is (Pc + 1).
 
 /**
  * Input
@@ -140,19 +156,8 @@ input(Acc, [Acc|NewQueueIn], NewQueueIn).
  * Scrive il contenuto dell'accumulatore alla fine della coda di output. 
  * Il contenuto dell'accumulatore rimane invariato.
  */
-output(Acc, QueueOut, NewQueueOut) :- append(QueueOut, [Acc], NewQueueOut).
-
-/**
- * Halt
- * 
- * Instruction: 0xx
- *
- * Termina l'esecuzione del programma. 
- * Nessuna ulteriore istruzione viene eseguita.
- */
-lmc_halt :- halt.
-
-
+output(Acc, QueueOut, NewQueueOut) :- 
+    append(QueueOut, [Acc], NewQueueOut).
 
 % LITTLE MAN COMPUTER
 
@@ -163,7 +168,8 @@ lmc_halt :- halt.
  *
  * instr_in_mem(Pc, Mem, Instr) / 3
  */
-instr_in_mem(Pc, Mem, Instruction) :- nth0(Pc, Mem, Instruction, _).
+instr_in_mem(Pc, Mem, Instruction) :- 
+    nth0(Pc, Mem, Instruction, _).
 
 /**
  * Puntatore nell'istruzione
@@ -171,7 +177,8 @@ instr_in_mem(Pc, Mem, Instruction) :- nth0(Pc, Mem, Instruction, _).
  * Estraggo il puntatore in memoria dall'istruzione
  * Esempio: da Ixx tengo xx
  */
-extract_pointer(I, X) :- X is (I mod 100).
+extract_pointer(I, X) :- 
+    X is (I mod 100).
 
 /**
  * One Instruction
@@ -204,7 +211,7 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
     Istr \= 902,
     !.
 
-one_instruction(state(Acc, Pc, Mem, In, Out, Flag), 
+one_instruction(state(Acc, Pc, Mem, In, Out, _), 
                 state(Acc2, Pc2, Mem2, In2, Out2, Flag2)) :- 
     instr_in_mem(Pc, Mem, Istr),
     extract_pointer(Istr, Pointer),
@@ -216,7 +223,7 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
     append([], In, In2),
     append([], Out, Out2).
 
-one_instruction(state(Acc, Pc, Mem, In, Out, Flag), 
+one_instruction(state(Acc, Pc, Mem, In, Out, _), 
                 state(Acc2, Pc2, Mem2, In2, Out2, Flag2)) :- 
     instr_in_mem(Pc, Mem, Istr),
     extract_pointer(Istr, Pointer),
@@ -241,7 +248,7 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
     append([], Out, Out2),
     copy_term(Flag, Flag2).
 
-one_instruction(state(Acc, Pc, Mem, In, Out, Flag), 
+one_instruction(state(_, Pc, Mem, In, Out, Flag), 
                 state(Acc2, Pc2, Mem2, In2, Out2, Flag2)) :- 
     instr_in_mem(Pc, Mem, Istr),
     extract_pointer(Istr, Pointer),
@@ -293,7 +300,7 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
     append([], Out, Out2),
     copy_term(Flag, Flag2).
 
-one_instruction(state(Acc, Pc, Mem, In, Out, Flag), 
+one_instruction(state(_, Pc, Mem, In, Out, Flag), 
                 state(Acc2, Pc2, Mem2, In2, Out2, Flag2)) :- 
     instr_in_mem(Pc, Mem, Istr),
     Istr = 901,
@@ -330,7 +337,7 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
  * eseguire una istruzione di halt (ad esempio se si incontra una 
  * istruzione non valida)."
  */
-execution_loop(halted_state(Acc, Pc, Mem, In, Out, Flag), Out).
+execution_loop(halted_state(_, _, _, _, Out, _), Out).
 
 execution_loop(state(Acc, Pc, Mem, In, Out, Flag), OutTot) :- 
     one_instruction(state(Acc, Pc, Mem, In, Out, Flag), NewState),
@@ -349,8 +356,11 @@ execution_loop(state(Acc, Pc, Mem, In, Out, Flag), OutTot) :-
  * remove(List, Elem, NewList) / 3
  */
 remove_all([], _, []).
-remove_all([X|T], X, L) :- remove_all(T, X, L).
-remove_all([H|T], X, [H|L]) :- H \= X,
+
+remove_all([X|T], X, L) :- 
+    remove_all(T, X, L).
+remove_all([H|T], X, [H|L]) :- 
+    H \= X,
     remove_all(T, X, L).
 
 /**
@@ -361,7 +371,8 @@ remove_all([H|T], X, [H|L]) :- H \= X,
  *
  * remove_comment(Command, CommandWithoutComments) / 2
  */
-remove_comment(Row, Command) :- split_string(Row, "//", " ", X),
+remove_comment(Row, Command) :- 
+    split_string(Row, "//", " ", X),
     nth0(0, X, Command, _).
 
 /**
@@ -371,10 +382,15 @@ remove_comment(Row, Command) :- split_string(Row, "//", " ", X),
  *
  * del_blank() / 3
  */
-del_blank(X, [], []) :- !.
-del_blank(X, [X|Xs], Y) :- !, 
+del_blank(_, [], []) :- 
+    !.
+
+del_blank(X, [X|Xs], Y) :- 
+    !, 
     del_blank(X, Xs, Y).
-del_blank(X, [T|Xs], Y) :- !, 
+
+del_blank(X, [T|Xs], Y) :- 
+    !, 
     del_blank(X, Xs, Y2), 
     append([T], Y2, Y).
 
@@ -384,7 +400,8 @@ del_blank(X, [T|Xs], Y) :- !,
  * Ricerca label in una riga
  * e memorizza l'associazione nella base di conoscenza.
  */
-search_label(FirstEmptyIndex, Row) :- split_string(Row, " ", " ", Y), % splitta istruzione in parole
+search_label(FirstEmptyIndex, Row) :- 
+    split_string(Row, " ", " ", Y), 
     del_blank("", Y, Words), % eliminazione spazi inutili                                           
     proper_length(Words, WordsNum), % conteggio parole
     WordsNum = 3,
@@ -398,12 +415,15 @@ search_label(FirstEmptyIndex, Row) :- split_string(Row, " ", " ", Y), % splitta 
  * 
  * noInstr() / 2
  */
-noInstr(_,[]) :- !.
+noInstr(_,[]) :- 
+    !.
 
-noInstr(X,[X|_]) :-!,
+noInstr(X,[X|_]) :-
+    !,
     fail.
 
-noInstr(X,[_|T]) :- !,
+noInstr(X,[_|T]) :- 
+    !,
     noInstr(X,T).
 
 /**
@@ -414,13 +434,16 @@ noInstr(X,[_|T]) :- !,
  * 
  * exec(FirstEmptyIndex, Row, Instruction) / 3
  */
-exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
+
+exec(_, Row, _) :- 
+    remove_comment(Row, Command),
     split_string(Command, " ", "", Y), % splitta istruzione in parole
     del_blank("", Y, Words), % eliminazione spazi inutili
     proper_length(Words, WordsNum), % conteggio parole WordsNum /= 0,
     WordsNum = 0, !.
 
-exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
+exec(_, Row, Instruction) :- 
+    remove_comment(Row, Command),
     split_string(Command, " ", "", Y), % splitta istruzione in parole
     del_blank("", Y, Words), % eliminazione spazi inutili
     proper_length(Words, WordsNum), % conteggio parole WordsNum /= 0,
@@ -428,18 +451,21 @@ exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
     !,
     single_command(Words, Instruction).
 
-exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
+exec(FirstEmptyIndex, Row, Instruction) :- 
+    remove_comment(Row, Command),
     split_string(Command, " ", "", Y), % splitta istruzione in parole
     del_blank("", Y, Words), % eliminazione spazi inutili
     proper_length(Words, WordsNum), % conteggio parole WordsNum /= 0,
     WordsNum = 2,
     nth0(0, Words, Elem),
     string_lower(Elem, Eleml),
-    noInstr(Eleml, ["add", "sub", "sta", "lda", "bra", "brz", "brp", "inp", "out", "hlt", "dat"]),
+    noInstr(Eleml, ["add", "sub", "sta", "lda", "bra", "brz"]), 
+    noInstr(Eleml, ["brp", "inp", "out", "hlt", "dat"]),
     !,
     command_with_label2(Words, Instruction, FirstEmptyIndex).
 
-exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
+exec(_, Row, Instruction) :- 
+    remove_comment(Row, Command),
     split_string(Command, " ", "", Y), % splitta istruzione in parole
     del_blank("", Y, Words), % eliminazione spazi inutili
     proper_length(Words, WordsNum), % conteggio parole WordsNum /= 0,
@@ -447,7 +473,8 @@ exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
     !,
     command(Words, Instruction).
 
-exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
+exec(FirstEmptyIndex, Row, Instruction) :- 
+    remove_comment(Row, Command),
     split_string(Command, " ", "", Y), % splitta istruzione in parole
     del_blank("", Y, Words), % eliminazione spazi inutili
     proper_length(Words, WordsNum), % conteggio parole WordsNum /= 0,
@@ -463,7 +490,8 @@ exec(FirstEmptyIndex, Row, Instruction) :- remove_comment(Row, Command),
  *
  * normalize(Number, NumberNorm) / 2
  */
-normalize(Number, NumberNorm) :- string_length(Number, Leng),
+normalize(Number, NumberNorm) :- 
+    string_length(Number, Leng),
     Leng = 1,
     !,
     string_concat("0", Number, NumberNorm).
@@ -478,17 +506,20 @@ normalize(Number, Number).
  *
  * single_command([Command], Instruction) / 2
  */
-single_command([Command], Instruction) :- string_lower(Command, CommandLower),
+single_command([Command], Instruction) :- 
+    string_lower(Command, CommandLower),
     CommandLower = "inp",
     !,
     copy_term("901", Instruction).
 
-single_command([Command], Instruction) :- string_lower(Command, CommandLower),
+single_command([Command], Instruction) :- 
+    string_lower(Command, CommandLower),
     CommandLower = "out",
     !,
     copy_term("902", Instruction).
 
-single_command([Command], Instruction) :- string_lower(Command, CommandLower),
+single_command([Command], Instruction) :- 
+    string_lower(Command, CommandLower),
     CommandLower = "hlt",
     !,
     copy_term("000", Instruction).
@@ -506,112 +537,128 @@ single_command([Command], Instruction) :- string_lower(Command, CommandLower),
  *
  * command([Command, Value], Instruction) / 2
  */
-command([Command, Value], Instruction) :- number_string(_, Value),
+command([Command, Value], Instruction) :- 
+    number_string(_, Value),
     string_lower(Command, CommandLower), 
     normalize(Value, ValueNorm),           
     CommandLower = "add",
     !,
     string_concat("1", ValueNorm, Instruction).
 
-command([Command, Label], Instruction) :- tag(Label, Value),
+command([Command, Label], Instruction) :- 
+    tag(Label, Value),
     string_lower(Command, CommandLower), 
     normalize(Value, ValueNorm),           
     CommandLower = "add",
     !,
     string_concat("1", ValueNorm, Instruction).
 
-command([Command, Value], Instruction) :- number_string(_, Value),
+command([Command, Value], Instruction) :- 
+    number_string(_, Value),
     string_lower(Command, CommandLower), 
     normalize(Value, ValueNorm),          
     CommandLower = "sub",
     !,
     string_concat("2", ValueNorm, Instruction).
 
-command([Command, Label], Instruction) :- tag(Label, Value),
+command([Command, Label], Instruction) :- 
+    tag(Label, Value),
     string_lower(Command, CommandLower), 
     normalize(Value, ValueNorm),          
     CommandLower = "sub",
     !,
     string_concat("2", ValueNorm, Instruction).
 
-command([Command, Value], Instruction) :- number_string(_, Value),            
+command([Command, Value], Instruction) :- 
+    number_string(_, Value),            
     string_lower(Command, CommandLower), 
     normalize(Value, ValueNorm),           
     CommandLower = "sta",
     !,
     string_concat("3", ValueNorm, Instruction).
 
-command([Command, Label], Instruction) :- tag(Label, Value),
+command([Command, Label], Instruction) :- 
+    tag(Label, Value),
     string_lower(Command, CommandLower), 
     normalize(Value, ValueNorm),           
     CommandLower = "sta",
     !,
     string_concat("3", ValueNorm, Instruction).
 
-command([Command, Value], Instruction) :- number_string(_, Value),
+command([Command, Value], Instruction) :- 
+    number_string(_, Value),
     string_lower(Command, CommandLower), 
     normalize(Value, ValueNorm),           
     CommandLower = "lda",
     !,
     string_concat("5", ValueNorm, Instruction).
 
-command([Command, Label], Instruction) :- tag(Label, Value),
+command([Command, Label], Instruction) :- 
+    tag(Label, Value),
     string_lower(Command, CommandLower), 
     normalize(Value, ValueNorm),           
     CommandLower = "lda",
     !,
     string_concat("5", ValueNorm, Instruction).
 
-command([Command, Value], Instruction) :- number_string(_, Value),
+command([Command, Value], Instruction) :- 
+    number_string(_, Value),
     string_lower(Command, CommandLower), 
     normalize(Value, ValueNorm),           
     CommandLower = "bra",
     !,
     string_concat("6", ValueNorm, Instruction).
 
-command([Command, Label], Instruction) :- tag(Label, Value),
+command([Command, Label], Instruction) :- 
+    tag(Label, Value),
     string_lower(Command, CommandLower), 
     normalize(Value, ValueNorm),           
     CommandLower = "bra",
     !,
     string_concat("6", ValueNorm, Instruction).
 
-command([Command, Value], Instruction) :- number_string(_, Value),
+command([Command, Value], Instruction) :- 
+    number_string(_, Value),
     string_lower(Command, CommandLower), 
     normalize(Value, ValueNorm),           
     CommandLower = "brz",
     !,
     string_concat("7", ValueNorm, Instruction).
 
-command([Command, Label], Instruction) :- tag(Label, Value),
+command([Command, Label], Instruction) :- 
+    tag(Label, Value),
     string_lower(Command, CommandLower), 
     normalize(Value, ValueNorm),           
     CommandLower = "brz",
     !,
     string_concat("7", ValueNorm, Instruction).
 
-command([Command, Value], Instruction) :- number_string(_, Value),
+command([Command, Value], Instruction) :- 
+    number_string(_, Value),
     string_lower(Command, CommandLower), 
     normalize(Value, ValueNorm),           
     CommandLower = "brp",
     !,
     string_concat("8", ValueNorm, Instruction).
 
-command([Command, Label], Instruction) :- tag(Label, Value),
+command([Command, Label], Instruction) :- 
+    tag(Label, Value),
     string_lower(Command, CommandLower), 
     normalize(Value, ValueNorm),           
     CommandLower = "brp",
     !,
     string_concat("8", ValueNorm, Instruction).
 
-command([Command, Value], Instruction) :- number_string(_, Value),
+command([Command, Value], Instruction) :- 
+    number_string(_, Value),
     string_lower(Command, CommandLower), 
     normalize(Value, ValueNorm),           
     CommandLower = "dat",
     !,
     copy_term(ValueNorm, Instruction).
 
-command([Command, Label], Instruction) :- tag(Label, Value),
+command([Command, Label], Instruction) :- 
+    tag(Label, Value),
     string_lower(Command, CommandLower), 
     normalize(Value, ValueNorm),           
     CommandLower = "dat",
@@ -624,15 +671,15 @@ command([Command, Label], Instruction) :- tag(Label, Value),
  * Esecuzione di un comando con una label, un comando e un valore (o label)
  * Restituisce l'istruzione relativa al comando
  *
- * command_with_label([Label, Command, Value], Instruction, FirstEmptyIndex) / 3
+ * command_with_label([Label, Command, Value], Instruction, FirstEmptyIndex)/3
  */
 
-command_with_label([Label, Command, Value], Instruction, FirstEmptyIndex) :- 
+command_with_label([_, Command, Value], Instruction, _) :- 
     string_lower(Command, CommandLower),  
     normalize(Value, ValueNorm),
-    command([CommandLower, Value], Instruction).
+    command([CommandLower, ValueNorm], Instruction).
 
-command_with_label2([Label, Command], Instruction, FirstEmptyIndex) :- 
+command_with_label2([_, Command], Instruction, _) :- 
     string_lower(Command, CommandLower),  
     single_command([CommandLower], Instruction).       
 
@@ -644,16 +691,20 @@ command_with_label2([Label, Command], Instruction, FirstEmptyIndex) :-
  * row_to_mem(Rows, Mem, Pc) / 3
  */
 
- replace(X, L, I, L2) :- nth0(X, L, _, L3), 
+ replace(X, L, I, L2) :- 
+    nth0(X, L, _, L3), 
     nth0(X, L2, I, L3).
-row_to_mem([], [], 0, []) :- !.
+row_to_mem([], [], 0, []) :- 
+    !.
 
-row_to_mem([LastRow], Mem, Pc, MemOut) :- !,
+row_to_mem([LastRow], Mem, Pc, MemOut) :- 
+    !,
     exec(Pc, LastRow, Instruction),
     Pc =< 100,
     replace(Pc, Mem, Instruction, MemOut).
 
-row_to_mem([Row|OtherRows], Mem, Pc, MemOut) :- exec(Pc, Row, Instruction),
+row_to_mem([Row|OtherRows], Mem, Pc, MemOut) :- 
+    exec(Pc, Row, Instruction),
     Pc =< 100,
     replace(Pc, Mem, Instruction, MemOutNew),
     PcNew is Pc+1,
@@ -666,16 +717,19 @@ row_to_mem([Row|OtherRows], Mem, Pc, MemOut) :- exec(Pc, Row, Instruction),
  *
  * save_labels(Rows, Mem, Pc) / 3
  */
-save_labels([], 0) :- !.
+save_labels([], 0) :- 
+    !.
 
-save_labels([LastRow], Pc) :- Pc < 100,
+save_labels([LastRow], Pc) :- 
+    Pc < 100,
     remove_comment(LastRow, Command),
     split_string(Command, " ", " ", Words),
     proper_length(Words, WordsNum),
     WordsNum < 2,
     !.
 
-save_labels([LastRow], Pc) :- Pc < 100,
+save_labels([LastRow], Pc) :- 
+    Pc < 100,
     remove_comment(LastRow, Command),
     split_string(Command, " ", " ", Words),
     proper_length(Words, WordsNum),
@@ -686,14 +740,16 @@ save_labels([LastRow], Pc) :- Pc < 100,
     !, 
     assertz(tag(Label, Pc)).
 
-save_labels([LastRow], Pc) :- Pc < 100,
+save_labels([LastRow], Pc) :- 
+    Pc < 100,
     remove_comment(LastRow, Command),
     split_string(Command, " ", " ", Words),
     proper_length(Words, WordsNum),
     WordsNum = 2,
     !.
 
-save_labels([LastRow], Pc) :- Pc < 100,
+save_labels([LastRow], Pc) :- 
+    Pc < 100,
     remove_comment(LastRow, Command),
     split_string(Command, " ", " ", Words),
     proper_length(Words, WordsNum),
@@ -702,7 +758,8 @@ save_labels([LastRow], Pc) :- Pc < 100,
     nth0(0, Words, Label),
     assertz(tag(Label, Pc)).
 
-save_labels([Row|OtherRows], Pc) :- !,
+save_labels([Row|OtherRows], Pc) :-
+    !,
     save_labels([Row], Pc),
     PcNew is Pc+1,
     save_labels(OtherRows, PcNew).                                                                                            
@@ -718,19 +775,29 @@ save_labels([Row|OtherRows], Pc) :- !,
  * lmc_load(Filename, Mem) / 2
  */
 
+% rimuove ogni commento dalla lista di stringhe 
+
 noComment([], []).
-noComment([H | T], [H2| T2]) :- remove_comment(H, H2),
+
+noComment([H | T], [H2| T2]) :- 
+    remove_comment(H, H2),
     noComment(T, T2).
 
-memg(L, NewMem) :- proper_length(L, X),
+% riempie il fondo della Mem con gli 0 
+
+memg(L, NewMem) :- 
+    proper_length(L, X),
     X<100,
     append(["0"], L, Mem),
     memg(Mem, NewMem), 
     !.
 
-memg(Mem, Mem) :-!.
+memg(Mem, Mem) :-
+    !.
 
-memToNumber(Mem, MemNumber, X) :- proper_length(Mem, N),
+% converte la lista di stringhe in lista di Int 
+
+memToNumber(Mem, MemNumber, X) :- 
     X<100,
     nth0(X, Mem, Elem),
     number_string(Num, Elem),
@@ -738,14 +805,17 @@ memToNumber(Mem, MemNumber, X) :- proper_length(Mem, N),
     replace(X, Mem, Num, MemNumber2),
     memToNumber(MemNumber2, MemNumber, NewX),!.
 
-memToNumber(Mem, Mem, _) :- !.
+memToNumber(Mem, Mem, _) :- 
+    !.
 
 
 /**
-* carica il file e toglie le righe coi commenti
+* carica il file, toglie le righe coi commenti
+* e genera la mem
 */
 
-lmc_load(Filename, Mem) :- open(Filename, read, Input),
+lmc_load(Filename, Mem) :- 
+    open(Filename, read, Input),
     read_string(Input, _, FileTxt),
     split_string(FileTxt, "\n", " ", Rows),
     del_blank("", Rows, ClearRows),
@@ -760,8 +830,9 @@ lmc_load(Filename, Mem) :- open(Filename, read, Input),
 * all'input e pulisce gli assert delle label
 */
 
-lmc_run(Filename, In, Output) :- lmc_load(Filename, Mem),
+lmc_run(Filename, In, Output) :- 
+    lmc_load(Filename, Mem),
     memToNumber(Mem, MemNumber, 0),
     execution_loop(state(0, 0, MemNumber, In, [], noflag), Out),
-    retractall(tag(X,Y)),
+    retractall(tag(_,_)),
     copy_term(Out, Output),!.
