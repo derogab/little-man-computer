@@ -17,8 +17,8 @@
  */
 addizione(Acc, Pointer, Mem, X, flag) :- 
     nth0(Pointer, Mem, Value, _),
-    Y is Acc+Value,
-    X is ((Acc+Value)mod 1000),
+    Y is Acc + Value,
+    X is ((Acc + Value) mod 1000),
     Y > 999,
     !.
 addizione(Acc, Pointer, Mem, X, noflag) :- 
@@ -359,6 +359,7 @@ remove_all([], _, []).
 
 remove_all([X|T], X, L) :- 
     remove_all(T, X, L).
+
 remove_all([H|T], X, [H|L]) :- 
     H \= X,
     remove_all(T, X, L).
@@ -524,7 +525,8 @@ single_command([Command], Instruction) :-
     !,
     copy_term("000", Instruction).
 
-single_command([Command], Instruction) :- string_lower(Command, CommandLower),
+single_command([Command], Instruction) :- 
+    string_lower(Command, CommandLower),
     CommandLower = "dat",
     !,
     copy_term("000", Instruction).
@@ -691,9 +693,10 @@ command_with_label2([_, Command], Instruction, _) :-
  * row_to_mem(Rows, Mem, Pc) / 3
  */
 
- replace(X, L, I, L2) :- 
+replace(X, L, I, L2) :- 
     nth0(X, L, _, L3), 
     nth0(X, L2, I, L3).
+    
 row_to_mem([], [], 0, []) :- 
     !.
 
