@@ -763,5 +763,5 @@ lmc_load(Filename, Mem) :- open(Filename, read, Input),
 lmc_run(Filename, In, Output) :- lmc_load(Filename, Mem),
     memToNumber(Mem, MemNumber, 0),
     execution_loop(state(0, 0, MemNumber, In, [], noflag), Out),
-    %retractall(tag(X,Y)),
+    retractall(tag(X,Y)),
     copy_term(Out, Output),!.
