@@ -202,7 +202,13 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
     Istr >= 400,
     Istr < 500,
     !.
-    
+
+one_instruction(state(Acc, Pc, Mem, [], Out, Flag),
+                halted_state(Acc, Pc, Mem, [], Out, Flag)) :- 
+    instr_in_mem(Pc, Mem, Istr),
+    Istr = 901,    
+    !.
+ 
 one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
                 halted_state(Acc, Pc, Mem, In, Out, Flag)) :- 
     instr_in_mem(Pc, Mem, Istr),
@@ -678,8 +684,8 @@ command([Command, Label], Instruction) :-
 
 command_with_label([_, Command, Value], Instruction, _) :- 
     string_lower(Command, CommandLower),  
-    normalize(Value, ValueNorm),
-    command([CommandLower, ValueNorm], Instruction).
+    %normalize(Value, ValueNorm),
+    command([CommandLower, Value], Instruction).
 
 command_with_label2([_, Command], Instruction, _) :- 
     string_lower(Command, CommandLower),  
@@ -836,6 +842,6 @@ lmc_load(Filename, Mem) :-
 lmc_run(Filename, In, Output) :- 
     lmc_load(Filename, Mem),
     memToNumber(Mem, MemNumber, 0),
-    execution_loop(state(0, 0, MemNumber, In, [], noflag), Out),
+    execution_loop(state(0, 0, MemNumber, In, [], noflag), Output),
     retractall(tag(_,_)),
-    copy_term(Out, Output),!.
+    !.
