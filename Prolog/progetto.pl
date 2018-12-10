@@ -340,10 +340,10 @@ one_instruction(
     state(Acc2, Pc2, Mem2, In2, Out2, Flag2)
 
 ) :- instr_in_mem(Pc, Mem, Istr),
-     extract_pointer(Istr, Pointer),
+     %extract_pointer(Istr, Pointer),
      Istr = 901,
-     %proper_length(In, InEmpty),
-     %InEmpty \= 0,
+     proper_length(In, InEmpty),
+     InEmpty \= 0,
      input(Acc2, In, In2),
      Pc2 is Pc+1,
      append([], Mem, Mem2),
@@ -356,7 +356,7 @@ one_instruction(
     state(Acc2, Pc2, Mem2, In2, Out2, Flag2)
 
 ) :- instr_in_mem(Pc, Mem, Istr),
-     extract_pointer(Istr, Pointer),
+     %extract_pointer(Istr, Pointer),
      Istr = 902,
      output(Acc, Out, Out2),
      Acc2 is Acc,
@@ -814,10 +814,8 @@ lmc_load(Filename, Mem) :- open(Filename, read, Input),
 
 lmc_run(Filename, In, Output) :- lmc_load(Filename, Mem),
                                  memToNumber(Mem, MemNumber, 0),
-                                 write("ecco la memoria\n"),
-                                 write(MemNumber),
+                                 %write("ecco la memoria\n"),
+                                 %write(MemNumber),
                                  execution_loop(state(0, 0, MemNumber, In, [], noflag), Out),
-                                 Output is Out,!.
-
-
-
+                                % retractall(tag(X,Y)),
+                                 copy_term(Out, Output),!.
