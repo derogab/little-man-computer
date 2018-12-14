@@ -118,10 +118,10 @@ branchifzero(_, 0, Pointer, noflag, Pointer) :-
     !.
 
 branchifzero(Pc, _, _, noflag, NewPc) :- 
-    NewPc is (Pc + 1).
+    NewPc is ((Pc + 1) mod 100).
 
 branchifzero(Pc, _, _, flag, NewPc) :- 
-    NewPc is (Pc + 1).
+    NewPc is ((Pc + 1) mod 100).
 
 /**
  * Branch if positive
@@ -136,7 +136,7 @@ branchifzero(Pc, _, _, flag, NewPc) :-
 branchifpositive(_, Pointer, noflag, Pointer) :- 
     !.
 branchifpositive(Pc, _, flag, NewPc) :- 
-    NewPc is (Pc + 1).
+    NewPc is ((Pc + 1) mod 100).
 
 /**
  * Input
@@ -224,7 +224,7 @@ one_instruction(state(Acc, Pc, Mem, In, Out, _),
     Istr >= 100,
     Istr < 200,
     addizione(Acc, Pointer, Mem, Acc2, Flag2),
-    Pc2 is Pc+1,
+    Pc2 is ((Pc + 1) mod 100),
     append([], Mem, Mem2),
     append([], In, In2),
     append([], Out, Out2).
@@ -236,7 +236,7 @@ one_instruction(state(Acc, Pc, Mem, In, Out, _),
     Istr >= 200,
     Istr < 300,
     sottrazione(Acc, Pointer, Mem, Acc2, Flag2),
-    Pc2 is Pc+1,
+    Pc2 is ((Pc + 1) mod 100),
     append([], Mem, Mem2),
     append([], In, In2),
     append([], Out, Out2).
@@ -249,7 +249,7 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
     Istr < 400,
     store(Acc, Pointer, Mem, Mem2),
     Acc2 is Acc,
-    Pc2 is Pc+1,
+    Pc2 is ((Pc + 1) mod 100),
     append([], In, In2),
     append([], Out, Out2),
     copy_term(Flag, Flag2).
@@ -261,7 +261,7 @@ one_instruction(state(_, Pc, Mem, In, Out, Flag),
     Istr >= 500,
     Istr < 600,
     load(Acc2, Pointer, Mem),                                   
-    Pc2 is Pc+1,
+    Pc2 is ((Pc + 1) mod 100),
     append([], Mem, Mem2),
     append([], In, In2),
     append([], Out, Out2),
@@ -313,7 +313,7 @@ one_instruction(state(_, Pc, Mem, In, Out, Flag),
     proper_length(In, InEmpty),
     InEmpty \= 0,
     input(Acc2, In, In2),
-    Pc2 is Pc+1,
+    Pc2 is ((Pc + 1) mod 100),
     append([], Mem, Mem2),
     append([], Out, Out2),
     copy_term(Flag, Flag2).
@@ -324,7 +324,7 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
     Istr = 902,
     output(Acc, Out, Out2),
     Acc2 is Acc,
-    Pc2 is Pc+1,
+    Pc2 is ((Pc + 1) mod 100),
     append([], Mem, Mem2),
     append([], In, In2),
     copy_term(Flag, Flag2).

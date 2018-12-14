@@ -1,0 +1,14 @@
+INP
+STA first
+INP
+STA second
+SUB first
+BRP secondBig
+LDA first
+OUT
+BRA endProgram
+secondBig LDA second
+OUT
+endProgram HLT
+first DAT
+second DAT

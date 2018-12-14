@@ -1,0 +1,14 @@
+INP
+STA a
+loop  LDA a
+OUT
+SUB one
+STA a
+BRZ end
+BRA loop
+end LDA a
+SUB a
+OUT
+HLT
+a DAT
+one DAT 1 
