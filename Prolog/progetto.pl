@@ -24,7 +24,7 @@ addizione(Acc, Pointer, Mem, X, flag) :-
 addizione(Acc, Pointer, Mem, X, noflag) :- 
     nth0(Pointer, Mem, Value, _),
     Y is Acc+Value,
-    X is ((Acc+Value)mod 1000),
+    X is ((Acc+Value) mod 1000),
     Y < 1000.
 
 /**
