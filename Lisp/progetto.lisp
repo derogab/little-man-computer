@@ -60,15 +60,12 @@
         (
             (ACC (nth 2 state))
             (PC (nth 4 state))
-            (MEM (nth 6 state))
-            (IN (nth 8 state))
-            (OUT (nth 10 state))
-            (FLAG (nth 12 state))
+           ; (MEM (nth 6 state))
+           ; (IN (nth 8 state))
+           ; (OUT (nth 10 state))
+           ; (FLAG (nth 12 state))
         )
-       ; (let ((ISTR (nth PC MEM)))
-        ;print(ISTR))
-        ; TODO: SCRIVO QUI
+            (+ ACC PC)
         )
-        
-    )
 )
+
