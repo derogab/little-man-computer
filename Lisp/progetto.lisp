@@ -129,7 +129,6 @@
 
 
 ; PARSER
+
 (defun remove-comment (row) 
     (string-trim " " (subseq row 0 (search "//" row))))
-
-
