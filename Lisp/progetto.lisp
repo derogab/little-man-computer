@@ -13,15 +13,15 @@
 (defun addizione (Acc Pointer Mem)
     (cons (mod (+ Acc (nth Pointer Mem)) 1000)
     (if (< (+ Acc (nth Pointer Mem)) 1000) 
-        "noflag"
-        "flag")))
+        'NOFLAG
+        'FLAG)))
 
 ; SOTTRAZIONE
 (defun sottrazione (Acc Pointer Mem)
     (cons (mod (- Acc (nth Pointer Mem)) 1000)
     (if (>= (- Acc (nth Pointer Mem)) 0) 
-        "noflag"
-        "flag")))
+        'NOFLAG
+        'FLAG)))
 
 ; STORE
 (defun store (Acc Pointer Mem)
@@ -36,13 +36,13 @@
 
 ; BRANCH IF ZERO
 (defun branch-if-zero (Pc Acc Pointer Flag)
-    (if (and (= Acc 0) (equal Flag "noflag"))
+    (if (and (= Acc 0) (equal Flag 'NOFLAG))
         Pointer
         (mod (+ Pc 1) 100)))
 
 ; BRANCH IF POSITIVE
 (defun branch-if-positive (Pc Pointer Flag)
-    (if (equal Flag "noflag")
+    (if (equal Flag 'NOFLAG)
         Pointer
         (mod (+ Pc 1) 100)))
 
@@ -104,4 +104,13 @@
         )
     )
 )
+
+(defun execution-loop (state)
+    (cond ((and (< (nth 4 state) 100) (equal (nth 0 state) 'state)) (execution-loop (one-instruction state)))
+          ((equal (nth 0 state) 'halted-state) (nth 10 state))
+    )   
+)
+
+
+
 
