@@ -111,24 +111,23 @@
     )   
 )
 
-(defun split (chars str &optional (lst nil) (accm ""))
-  (cond
-    ((= (length str) 0) (reverse (cons accm lst)))
-    (t
-     (let ((c (char str 0)))
-       (if (member c chars)
-   (split chars (subseq str 1) (cons accm lst) "")
-   (split chars (subseq str 1) 
-                        lst 
-                        (concatenate 'string
-           accm
-         (string c))))
-            ))))
-
-
-
 
 ; PARSER
 
 (defun remove-comment (row) 
     (string-trim " " (subseq row 0 (search "//" row))))
+
+
+(defun split-core (str index) 
+    (cond ((= (length str) 0) (list str)) 
+          ((>= index (length str)) (list str)) 
+          ((equal (char str index) #\ ) (append (list (subseq str 0 index)) (split-core (subseq str (+ index 1)) 0) ))
+          (T (split-core str (+ index 1))) ))
+
+(defun split (str) 
+    (split-core str 0))
+
+(defun remove-blank (lista)
+    (cond ( (= (list-length lista) 0) NIL)
+          ((equal (car lista) "") (remove-blank (cdr lista))) 
+          (T  (cons (car lista) (remove-blank (cdr lista)) )) ))
