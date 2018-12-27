@@ -113,6 +113,7 @@
 
 
 ; PARSER
+(defparameter tags (list ))
 
 (defun remove-comment (row) 
     (string-trim " " (subseq row 0 (search "//" row))))
@@ -131,3 +132,33 @@
     (cond ( (= (list-length lista) 0) NIL)
           ((equal (car lista) "") (remove-blank (cdr lista))) 
           (T  (cons (car lista) (remove-blank (cdr lista)) )) ))
+
+(defun normalize (num)
+    (cond ((= (length num ) 3) num) 
+          ((= (length num ) 2) num)
+          ((= (length num ) 1) (concatenate 'string "0" num)) 
+          ((= (length num ) 0) "000"))   
+)
+
+(defun get-value-core (tag tags) 
+    (cond ( (equal tags NIL) NIL )
+          ( (equal tag (first (first tags))) (cdr (first tags)) )
+          ( T (get-value-core tag (cdr tags)) ) ) )
+
+(defun get-value-of (tag) 
+    (get-value-core tag tags))
+
+(defun exec (command) 
+    (cond ( (not (equal (get-value-of (car command)) NIL)) (exec (cdr command)) ) ; TODO: Salvataggio label
+          ( (and (equal (string-upcase (car command)) "ADD") (not (equal (cdr command) NIL))) (concatenate 'string "1" (normalize (second command))) )    
+          ( (and (equal (string-upcase (car command)) "SUB") (not (equal (cdr command) NIL))) (concatenate 'string "2" (normalize (second command))) )
+          ( (and (equal (string-upcase (car command)) "STA") (not (equal (cdr command) NIL))) (concatenate 'string "3" (normalize (second command))) )
+          ( (and (equal (string-upcase (car command)) "LDA") (not (equal (cdr command) NIL))) (concatenate 'string "5" (normalize (second command))) )
+          ( (and (equal (string-upcase (car command)) "BRA") (not (equal (cdr command) NIL))) (concatenate 'string "6" (normalize (second command))) )
+          ( (and (equal (string-upcase (car command)) "BRZ") (not (equal (cdr command) NIL))) (concatenate 'string "7" (normalize (second command))) )
+          ( (and (equal (string-upcase (car command)) "BRP") (not (equal (cdr command) NIL))) (concatenate 'string "8" (normalize (second command))) )
+          ( (and (equal (string-upcase (car command)) "INP") (equal (cdr command) NIL)) "901" )
+          ( (and (equal (string-upcase (car command)) "OUT") (equal (cdr command) NIL)) "902" )
+          ( (and (equal (string-upcase (car command)) "HLT") (equal (cdr command) NIL)) "000" )
+          ( (equal (string-upcase (car command)) "DAT") (normalize (cdr command)) ) ; TODO: Funzionalità DAT
+    ))
