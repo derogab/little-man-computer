@@ -114,6 +114,7 @@
 
 ; PARSER
 (defparameter tags (list ))
+(defparameter pc 0)
 
 (defun remove-comment (row) 
     (string-trim " " (subseq row 0 (search "//" row))))
@@ -149,8 +150,7 @@
     (get-value-core tag tags))
 
 (defun exec (command) 
-    (cond ( (not (equal (get-value-of (car command)) NIL)) (exec (cdr command)) ) ; TODO: Salvataggio label
-          ( (and (equal (string-upcase (car command)) "ADD") (not (equal (cdr command) NIL))) (concatenate 'string "1" (normalize (second command))) )    
+    (cond ( (and (equal (string-upcase (car command)) "ADD") (not (equal (cdr command) NIL))) (concatenate 'string "1" (normalize (second command))) )    
           ( (and (equal (string-upcase (car command)) "SUB") (not (equal (cdr command) NIL))) (concatenate 'string "2" (normalize (second command))) )
           ( (and (equal (string-upcase (car command)) "STA") (not (equal (cdr command) NIL))) (concatenate 'string "3" (normalize (second command))) )
           ( (and (equal (string-upcase (car command)) "LDA") (not (equal (cdr command) NIL))) (concatenate 'string "5" (normalize (second command))) )
@@ -161,4 +161,5 @@
           ( (and (equal (string-upcase (car command)) "OUT") (equal (cdr command) NIL)) "902" )
           ( (and (equal (string-upcase (car command)) "HLT") (equal (cdr command) NIL)) "000" )
           ( (equal (string-upcase (car command)) "DAT") (normalize (cdr command)) ) ; TODO: Funzionalità DAT
+          ( T (car (cons (exec (cdr command)) (push (cons (string-upcase (car command)) pc) tags) )) )
     ))
