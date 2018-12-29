@@ -135,15 +135,12 @@
           (T  (cons (car lista) (remove-blank (cdr lista)) )) ))
 
 (defun normalize (num)
-    ;(cond ((= (length num ) 3) num) 
-    ;      ((= (length num ) 2) num)
-    ;      ((= (length num ) 1) (concatenate 'string "0" num)) 
-    ;      ((= (length num ) 0) "000"))   
-num)
+    (cond ((= (length num ) 1) (concatenate 'string "0" num)) 
+          (T num)) )  
 
 (defun get-value-core (tag tags) 
     (cond ( (equal tags NIL) NIL )
-          ( (equal tag (first (first tags))) (cdr (first tags)) )
+          ( (equal (string-upcase tag) (string-upcase (first (first tags)))) (cdr (first tags)) )
           ( T (get-value-core tag (cdr tags)) ) ) )
 
 (defun get-value-of (tag) 
@@ -176,7 +173,7 @@ num)
             "000")
           ((equal (string-upcase (car command)) "DAT") 
             (cond ( (equal (cdr command) NIL) "000")
-                  (T (normalize (value-of (second command))))))
+                  (T (value-of (second command)))))
           ((not (equal (car command) "")) 
             (car (cons (command-to-instr (cdr command) pointer) (push (cons (string-upcase (car command)) (write-to-string pointer)) tags))))
           (T 
@@ -191,12 +188,24 @@ num)
   (with-open-file (f filename :direction :input)
     (read-all-lines-helper f)))
 
-(defun instr-to-mem (instr) 
-  (push instr mem))
-
 (defun lmc-load (filename)
-  (commands-to-mem (remove-blank (read-all-lines filename)) 0))
+  (cdr (cons (get-mem (commands-to-mem (remove-blank (read-all-lines filename)) 0))
+             (list-parse-integer (get-mem (commands-to-mem (remove-blank (read-all-lines filename)) 0))) )))
 
 (defun commands-to-mem (commands pointer)
-  (cond ( (equal commands NIL) T)
-        ( T (instr-to-mem (command-to-instr (split (remove-comment (car commands))) pointer)) )))
+  (cond ( (equal commands NIL) NIL)
+        ( T (cons (command-to-instr (remove-blank (split (remove-comment (car commands)))) pointer) (commands-to-mem (cdr commands) (+ pointer 1))) )))
+
+(defun get-mem (mem)
+  (nconc mem (list-of-zero (- 100 (list-length mem)))))
+
+(defun list-of-zero (n) 
+  (cond ( (= n 0) NIL )
+        ( T (cons "0" (list-of-zero (- n 1))))))
+
+(defun list-parse-integer (l) 
+  (cond ( (equal l NIL) NIL )
+        ( T (cons (parse-integer (car l)) (list-parse-integer (cdr l))) )))
+
+(defun lmc-run (filename input)
+  (execution-loop (list 'state ':acc 0 ':pc 0 ':mem (lmc-load filename) ':in input ':out '() ':flag 'NOFLAG )))
