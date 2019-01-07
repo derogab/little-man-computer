@@ -226,7 +226,9 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
 
 execution_loop(halted_state(_, _, _, _, Out, _), Out).
 
-execution_loop(state(Acc, Pc, Mem, In, Out, Flag), OutTot) :- 
+execution_loop(state(Acc, Pc, Mem, In, Out, Flag), OutTot) :-
+    proper_length(Mem, Len),
+    Len =< 100,
     one_instruction(state(Acc, Pc, Mem, In, Out, Flag), NewState),
     Pc < 100,
     !,
