@@ -494,15 +494,6 @@ command([Command, Value], Instruction) :-
     !,
     copy_term(ValueNorm, Instruction).
 
-/*command([Command, Label], Instruction) :- 
-    string_upper(Label, LabelUpper),    
-    tag(LabelUpper, Value),
-    string_lower(Command, CommandLower), 
-    normalize(Value, ValueNorm),           
-    CommandLower = "dat",
-    !,
-    copy_term(ValueNorm, Instruction).*/
-
 %%% Command with Label
 %%% Restituisce l'istruzione numerica associata al comando assembly
 %%% nel caso di un comando con 3 parole
