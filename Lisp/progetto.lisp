@@ -1,71 +1,86 @@
-; UTILS
+;;;; Little Man Computer
+;;;; Progetto di Linguaggi di Programmazione
+;;;; Anno accademico 2018-2019
+;;;; Appello di Gennaio 2019
 
-; Replace
+;;; Replace
+;;; Sostituisce tutte le occorrenze di un valore in una lista
 (defun repl (list n elem)
   (if (= n 0)
       (append (list elem) (cdr list))
       (append (list (car list)) (repl (cdr list) (- n 1) elem))))
 
-; List Parse Integer
+;;; List Parse Integer
+;;; Converte tutti gli elementi numerici della lista in interi
 (defun list-parse-integer (l)
-  (cond ( (equal l NIL) NIL)
-        ( T (cons (parse-integer (car l)) (list-parse-integer (cdr l))))))
+  (cond ((equal l NIL) 
+          NIL)
+        (T 
+          (cons (parse-integer (car l)) (list-parse-integer (cdr l))))))
 
-; List of Zero
+;;; List of Zero
+;;; Crea una lista di n zeri
 (defun list-of-zero (n)
-  (cond ( (= n 0) NIL)
-        ( T (cons "0" (list-of-zero (- n 1))))))
+  (cond ((= n 0) NIL)
+        (T (cons "0" (list-of-zero (- n 1))))))
 
-
-
-; ISTRUZIONI
-
-; ADDIZIONE
+;;; Addizione
+;;; Instruction: 1xx 
 (defun addizione (Acc Pointer Mem)
   (cons (mod (+ Acc (nth Pointer Mem)) 1000)
         (if (< (+ Acc (nth Pointer Mem)) 1000)
             'NOFLAG
             'FLAG)))
 
-; SOTTRAZIONE
+;;; Sottrazione
+;;; Instruction: 2xx 
 (defun sottrazione (Acc Pointer Mem)
   (cons (mod (- Acc (nth Pointer Mem)) 1000)
         (if (>= (- Acc (nth Pointer Mem)) 0)
             'NOFLAG
             'FLAG)))
 
-; STORE
+;;; Store
+;;; Instruction: 3xx 
 (defun store (Acc Pointer Mem)
   (repl Mem Pointer Acc))
 
-; LOAD
+;;; Load
+;;; Instruction: 5xx 
 (defun lload (Pointer Mem)
   (nth Pointer Mem))
 
-; BRANCH
+;;; Branch
+;;; Instruction: 6xx 
 (defun branch (Pc) (+ Pc 0))
 
-; BRANCH IF ZERO
+;;; Branch If Zero
+;;; Instruction: 7xx 
 (defun branch-if-zero (Pc Acc Pointer Flag)
   (if (and (= Acc 0) (equal Flag 'NOFLAG))
       Pointer
       (mod (+ Pc 1) 100)))
 
-; BRANCH IF POSITIVE
+;;; Branch If Zero
+;;; Instruction: 8xx 
 (defun branch-if-positive (Pc Pointer Flag)
   (if (equal Flag 'NOFLAG)
       Pointer
       (mod (+ Pc 1) 100)))
 
-; INPUT
+;;; Input
+;;; Instruction: 901
 (defun input (In)
   (cons (first In) (rest In)))
 
-; OUTPUT
+;;; Output
+;;; Instruction: 902
 (defun output (Acc Out)
   (append Out (list Acc)))
 
-; ONE INSTRUCTION
+;;; One Instruction
+;;; Passaggio da uno stato iniziale ad uno stato finale
+;;; a seconda del valore dell'opcode (Istr)
 (defun one-instruction (state)
   (let ((ACC (nth 2 state))
         (PC (nth 4 state))
@@ -106,6 +121,9 @@
                (list 'state ':acc ACC ':pc (mod (+ PC 1) 100) ':mem MEM
                      ':in IN ':out (output ACC OUT) ':flag FLAG)))))))
 
+;;; Execution Loop
+;;; Cicla dallo stato iniziale allo stato finale
+;;; Restituisce la coda di output quando viene raggiunto uno stato di halt
 (defun execution-loop (state)
   (cond ((> (list-length (nth 6 state)) 100) NIL) ; mem troppo grande (> 100)
         ((equal state NIL) NIL) ; istruzione errata
@@ -115,14 +133,19 @@
           (nth 10 state))))
 
 
-; PARSER
+;;; Definizione parametri top-level
+;;; Si definisce una lista per i tags e un parametro per il PC
 (defparameter tags (list))
 (defparameter pc 0)
 
+;;; Remove Comment
+;;; Rimuove i commenti da una stringa 
 (defun remove-comment (row)
   (string-trim " " (subseq row 0 (search "//" row))))
 
-
+;;; Split
+;;; Splitta una stringa
+;;; Restituisce una lista 
 (defun split-core (str index)
   (cond ((= (length str) 0) (list str))
         ((>= index (length str)) (list str))
@@ -133,15 +156,23 @@
 (defun split (str)
   (split-core str 0))
 
+;;; Remove Blank
+;;; Elimina tutti gli elementi uguali alla stringa vuota da una lista
 (defun remove-blank (lista)
   (cond ( (= (list-length lista) 0) NIL)
         ((equal (remove-comment (car lista)) "") (remove-blank (cdr lista)))
         (T  (cons (car lista) (remove-blank (cdr lista))))))
 
+;;; Normalize
+;;; Restituisce qualunque numero in 2 cifre
+;;; aggiungendo uno 0 prima nel caso sia un numero compreso tra 0 e 10
 (defun normalize (num)
   (cond ((= (length num ) 1) (concatenate 'string "0" num))
         (T num)))
 
+;;; Get Value
+;;; Restituisce il valore associato ad una etichetta
+;;; o il valore stesso
 (defun get-value-core (tag tags)
   (cond ( (equal tags NIL) NIL)
         ( (equal (string-upcase tag)
@@ -155,6 +186,8 @@
   (cond ((equal (get-value-of word) NIL) word)
         (T (get-value-of word))))
 
+;;; Command to Istr
+;;; Restituisce l'istruzione numerica associata al comando assembly
 (defun command-to-instr (command pointer)
   (cond ((and (equal (string-upcase (car command)) "ADD") (not (equal (cdr command) NIL)))
          (concatenate 'string "1" (normalize (value-of (second command)))))
@@ -185,26 +218,38 @@
         (T
           (command-to-instr (cdr command) pointer))))
 
-
+;;; Read Lines
+;;; Legge il file
+;;; Restituisce una lista contenente le righe del file di testo letto
 (defun read-all-lines-helper (stream)
-  (let ((line (read-line stream nil nil))) ;; leggi la linea ritornando nil in caso di fine file
+  (let ((line (read-line stream NIL NIL))) ;; leggi la linea ritornando nil in caso di fine file
     (when line (cons line (read-all-lines-helper stream)))))
 
 (defun read-all-lines (filename)
   (with-open-file (f filename :direction :input)
                   (read-all-lines-helper f)))
 
+;;; Get Mem
+;;; Riempie il fondo della Mem con gli 0 
 (defun get-mem (mem)
   (nconc mem (list-of-zero (- 100 (list-length mem)))))
 
+;;; Commands to Mem
+;;; Aggiunge i vari comandi assembly alla memoria
 (defun commands-to-mem (commands pointer)
   (cond ( (equal commands NIL) NIL)
         ( T (cons (command-to-instr (remove-blank (split (remove-comment (car commands)))) pointer)
                   (commands-to-mem (cdr commands) (+ pointer 1))))))
 
+;;; LMC Load
+;;; Legge il file .lmc e genera la memoria convertendola in interi
+;;; dopo gli opportuni controlli 
 (defun lmc-load (filename)
   (cdr (cons (get-mem (commands-to-mem (remove-blank (read-all-lines filename)) 0))
              (list-parse-integer (get-mem (commands-to-mem (remove-blank (read-all-lines filename)) 0))))))
 
+;;; LMC Run
+;;; Esegue il lmc_load del file .lmc,
+;;; e passa la memoria ottenuta allo stato iniziale dell'execution-loop.
 (defun lmc-run (filename input)
   (execution-loop (list 'state ':acc 0 ':pc 0 ':mem (lmc-load filename) ':in input ':out '() ':flag 'NOFLAG)))
