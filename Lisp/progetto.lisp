@@ -134,9 +134,9 @@
 
 
 ;;; Definizione parametri top-level
-;;; Si definisce una lista per i tags e un parametro per il PC
+;;; Si definisce una lista per i tags 
 (defparameter tags (list))
-(defparameter pc 0)
+
 
 ;;; Remove Comment
 ;;; Rimuove i commenti da una stringa 
@@ -228,6 +228,25 @@
 (defun read-all-lines (filename)
   (with-open-file (f filename :direction :input)
                   (read-all-lines-helper f)))
+
+;;; Is In List
+(defun is-in-list (elem list)
+  (cond ((equal elem (car list)) T)
+        ((equal list NIL) NIL)
+        (T (is-in-list elem (cdr list)))))
+
+;;; Is Istr
+(defun is-istr (command)
+  (is-in-list (string-upcase (car command)) 
+              (list "ADD" "SUB" "STA" "LDA" "BRA" "BRZ" "BRP" "INP" "OUT" "HLT" "DAT")))
+
+;;; Get Tags
+;;; Restituisce la lista di etichette del file
+(defun get-tags (commands pc)
+  (cond ( (equal commands NIL) NIL )
+        (T (cond ( (not (is-istr (remove-blank (split (remove-comment (car commands)))))) 
+                    (append (list (cons (string-upcase (car (remove-blank (split (remove-comment (car commands)))))) pc)) (get-tags (cdr commands) (+ pc 1))) )
+                 (T (get-tags (cdr commands) (+ pc 1)))))))
 
 ;;; Get Mem
 ;;; Riempie il fondo della Mem con gli 0 
