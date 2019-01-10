@@ -154,7 +154,7 @@
 ;;; Remove Blank
 ;;; Elimina tutti gli elementi uguali alla stringa vuota da una lista
 (defun remove-blank (lista)
-  (cond ( (= (list-length lista) 0) NIL)
+  (cond ((= (list-length lista) 0) NIL)
         ((equal (remove-comment (car lista)) "") (remove-blank (cdr lista)))
         (T  (cons (car lista) (remove-blank (cdr lista))))))
 
@@ -169,10 +169,10 @@
 ;;; Restituisce il valore associato ad una etichetta
 ;;; o il valore stesso
 (defun get-value-of (tag tags)
-  (cond ( (equal tags NIL) NIL)
-        ( (equal (string-upcase tag)
+  (cond ((equal tags NIL) NIL)
+        ((equal (string-upcase tag)
                  (string-upcase (first (first tags)))) (cdr (first tags)))
-        ( T (get-value-of tag (cdr tags)))))
+        (T (get-value-of tag (cdr tags)))))
 
 (defun value-of (word tags)
   (cond ((equal (get-value-of word tags) NIL) word)
@@ -202,7 +202,7 @@
         ((and (equal (string-upcase (car command)) "HLT") (equal (cdr command) NIL))
          "000")
         ((equal (string-upcase (car command)) "DAT")
-         (cond ( (equal (cdr command) NIL) "000")
+         (cond ((equal (cdr command) NIL) "000")
                (T (value-of (second command) tags))))
         (T
           (command-to-instr (cdr command) pointer tags))))
@@ -232,9 +232,9 @@
 ;;; Get Tags
 ;;; Restituisce la lista di etichette del file
 (defun get-tags (commands pc)
-  (cond ( (equal commands NIL) NIL )
+  (cond ((equal commands NIL) NIL)
         (T (cond ((not (is-istr (remove-blank (split (remove-comment (car commands)))))) 
-                    (append (list (cons (string-upcase (car (remove-blank (split (remove-comment (car commands)))))) (write-to-string pc))) (get-tags (cdr commands) (+ pc 1))) )
+                    (append (list (cons (string-upcase (car (remove-blank (split (remove-comment (car commands)))))) (write-to-string pc))) (get-tags (cdr commands) (+ pc 1))))
                  (T (get-tags (cdr commands) (+ pc 1)))))))
 
 ;;; Get Mem
@@ -245,8 +245,8 @@
 ;;; Commands to Mem
 ;;; Aggiunge i vari comandi assembly alla memoria
 (defun commands-to-mem (commands pointer tags)
-  (cond ( (equal commands NIL) NIL)
-        ( T (cons (command-to-instr (remove-blank (split (remove-comment (car commands)))) pointer tags)
+  (cond ((equal commands NIL) NIL)
+        (T (cons (command-to-instr (remove-blank (split (remove-comment (car commands)))) pointer tags)
                   (commands-to-mem (cdr commands) (+ pointer 1) tags)))))
 
 ;;; LMC Load
