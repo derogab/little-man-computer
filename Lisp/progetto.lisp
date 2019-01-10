@@ -133,11 +133,6 @@
           (nth 10 state))))
 
 
-;;; Definizione parametri top-level
-;;; Si definisce una lista per i tags 
-(defparameter tags (list))
-
-
 ;;; Remove Comment
 ;;; Rimuove i commenti da una stringa 
 (defun remove-comment (row)
@@ -173,36 +168,33 @@
 ;;; Get Value
 ;;; Restituisce il valore associato ad una etichetta
 ;;; o il valore stesso
-(defun get-value-core (tag tags)
+(defun get-value-of (tag tags)
   (cond ( (equal tags NIL) NIL)
         ( (equal (string-upcase tag)
                  (string-upcase (first (first tags)))) (cdr (first tags)))
-        ( T (get-value-core tag (cdr tags)))))
+        ( T (get-value-of tag (cdr tags)))))
 
-(defun get-value-of (tag)
-  (get-value-core tag tags))
-
-(defun value-of (word)
-  (cond ((equal (get-value-of word) NIL) word)
-        (T (get-value-of word))))
+(defun value-of (word tags)
+  (cond ((equal (get-value-of word tags) NIL) word)
+        (T (get-value-of word tags))))
 
 ;;; Command to Istr
 ;;; Restituisce l'istruzione numerica associata al comando assembly
-(defun command-to-instr (command pointer)
+(defun command-to-instr (command pointer tags)
   (cond ((and (equal (string-upcase (car command)) "ADD") (not (equal (cdr command) NIL)))
-         (concatenate 'string "1" (normalize (value-of (second command)))))
+         (concatenate 'string "1" (normalize (value-of (second command) tags))))
         ((and (equal (string-upcase (car command)) "SUB") (not (equal (cdr command) NIL)))
-         (concatenate 'string "2" (normalize (value-of (second command)))))
+         (concatenate 'string "2" (normalize (value-of (second command) tags))))
         ((and (equal (string-upcase (car command)) "STA") (not (equal (cdr command) NIL)))
-         (concatenate 'string "3" (normalize (value-of (second command)))))
+         (concatenate 'string "3" (normalize (value-of (second command) tags))))
         ((and (equal (string-upcase (car command)) "LDA") (not (equal (cdr command) NIL)))
-         (concatenate 'string "5" (normalize (value-of (second command)))))
+         (concatenate 'string "5" (normalize (value-of (second command) tags))))
         ((and (equal (string-upcase (car command)) "BRA") (not (equal (cdr command) NIL)))
-         (concatenate 'string "6" (normalize (value-of (second command)))))
+         (concatenate 'string "6" (normalize (value-of (second command) tags))))
         ((and (equal (string-upcase (car command)) "BRZ") (not (equal (cdr command) NIL)))
-         (concatenate 'string "7" (normalize (value-of (second command)))))
+         (concatenate 'string "7" (normalize (value-of (second command) tags))))
         ((and (equal (string-upcase (car command)) "BRP") (not (equal (cdr command) NIL)))
-         (concatenate 'string "8" (normalize (value-of (second command)))))
+         (concatenate 'string "8" (normalize (value-of (second command) tags))))
         ((and (equal (string-upcase (car command)) "INP") (equal (cdr command) NIL))
          "901")
         ((and (equal (string-upcase (car command)) "OUT") (equal (cdr command) NIL))
@@ -211,12 +203,9 @@
          "000")
         ((equal (string-upcase (car command)) "DAT")
          (cond ( (equal (cdr command) NIL) "000")
-               (T (value-of (second command)))))
-        ((not (equal (car command) ""))
-         (car (cons (command-to-instr (cdr command) pointer)
-                    (push (cons (string-upcase (car command)) (write-to-string pointer)) tags))))
+               (T (value-of (second command) tags))))
         (T
-          (command-to-instr (cdr command) pointer))))
+          (command-to-instr (cdr command) pointer tags))))
 
 ;;; Read Lines
 ;;; Legge il file
@@ -244,8 +233,8 @@
 ;;; Restituisce la lista di etichette del file
 (defun get-tags (commands pc)
   (cond ( (equal commands NIL) NIL )
-        (T (cond ( (not (is-istr (remove-blank (split (remove-comment (car commands)))))) 
-                    (append (list (cons (string-upcase (car (remove-blank (split (remove-comment (car commands)))))) pc)) (get-tags (cdr commands) (+ pc 1))) )
+        (T (cond ((not (is-istr (remove-blank (split (remove-comment (car commands)))))) 
+                    (append (list (cons (string-upcase (car (remove-blank (split (remove-comment (car commands)))))) (write-to-string pc))) (get-tags (cdr commands) (+ pc 1))) )
                  (T (get-tags (cdr commands) (+ pc 1)))))))
 
 ;;; Get Mem
@@ -255,17 +244,16 @@
 
 ;;; Commands to Mem
 ;;; Aggiunge i vari comandi assembly alla memoria
-(defun commands-to-mem (commands pointer)
+(defun commands-to-mem (commands pointer tags)
   (cond ( (equal commands NIL) NIL)
-        ( T (cons (command-to-instr (remove-blank (split (remove-comment (car commands)))) pointer)
-                  (commands-to-mem (cdr commands) (+ pointer 1))))))
+        ( T (cons (command-to-instr (remove-blank (split (remove-comment (car commands)))) pointer tags)
+                  (commands-to-mem (cdr commands) (+ pointer 1) tags)))))
 
 ;;; LMC Load
 ;;; Legge il file .lmc e genera la memoria convertendola in interi
 ;;; dopo gli opportuni controlli 
 (defun lmc-load (filename)
-  (cdr (cons (get-mem (commands-to-mem (remove-blank (read-all-lines filename)) 0))
-             (list-parse-integer (get-mem (commands-to-mem (remove-blank (read-all-lines filename)) 0))))))
+  (list-parse-integer (get-mem (commands-to-mem (remove-blank (read-all-lines filename)) 0 (get-tags (remove-blank (read-all-lines filename)) 0)))))
 
 ;;; LMC Run
 ;;; Esegue il lmc_load del file .lmc,
