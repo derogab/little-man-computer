@@ -105,6 +105,9 @@
                (list 'state ':acc ACC ':pc (mod (+ PC 1) 100) 
                      ':mem (store ACC POINTER MEM)
                      ':in IN ':out OUT ':flag FLAG))
+              ((and (> ISTR 399) (< ISTR 500)) 
+                (list 'halted-state ':acc ACC ':pc PC ':mem MEM 
+                      ':in IN ':out OUT ':flag FLAG ))
               ((and (> ISTR 499) (< ISTR 600))
                (list 'state ':acc (lload POINTER MEM) ':pc (mod (+ PC 1) 100) 
                      ':mem MEM ':in IN ':out OUT ':flag FLAG))
@@ -119,12 +122,21 @@
                (list 'state ':acc ACC 
                      ':pc (branch-if-positive PC POINTER FLAG) ':mem MEM
                      ':in IN ':out OUT ':flag FLAG))
-              ((and (= ISTR 901) (not (= (list-length IN) 0)))
-               (list 'state ':acc (car (input IN)) ':pc (mod (+ PC 1) 100) 
-                     ':mem MEM ':in (cdr (input IN)) ':out OUT ':flag FLAG))
-              ((= ISTR 902)
-               (list 'state ':acc ACC ':pc (mod (+ PC 1) 100) ':mem MEM
-                     ':in IN ':out (output ACC OUT) ':flag FLAG)))))))
+               ((= ISTR 900) 
+                (list 'halted-state ':acc ACC ':pc PC ':mem MEM 
+                      ':in IN ':out OUT ':flag FLAG ))
+               ((and (= ISTR 901) (= (list-length IN) 0)) 
+                (list 'halted-state ':acc ACC ':pc PC ':mem MEM 
+                      ':in IN ':out OUT ':flag FLAG ))
+               ((= ISTR 901) 
+                (list 'state ':acc (car (input IN)) ':pc (+ PC 1) 
+                      ':mem MEM ':in (cdr (input IN)) ':out OUT ':flag FLAG ))
+               ((= ISTR 902) 
+                (list 'state ':acc ACC ':pc (+ PC 1) ':mem MEM 
+                      ':in IN ':out (output ACC OUT) ':flag FLAG ))
+               ((and (> ISTR 902) (< ISTR 1000)) 
+                (list 'halted-state ':acc ACC ':pc PC ':mem MEM 
+                      ':in IN ':out OUT ':flag FLAG )))))))
 
 ;;; Execution Loop
 ;;; Cicla dallo stato iniziale allo stato finale
