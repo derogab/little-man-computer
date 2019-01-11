@@ -94,29 +94,34 @@
                (list 'halted-state ':acc ACC ':pc PC ':mem MEM
                      ':in IN ':out OUT ':flag FLAG))
               ((and (> ISTR 99) (< ISTR 200))
-               (list 'state ':acc (car (addizione ACC POINTER MEM)) ':pc (mod (+ PC 1) 100)
-                     ':mem MEM ':in IN ':out OUT ':flag (cdr (addizione ACC POINTER MEM))))
+               (list 'state ':acc (car (addizione ACC POINTER MEM))
+                     ':pc (mod (+ PC 1) 100) ':mem MEM ':in IN 
+                     ':out OUT ':flag (cdr (addizione ACC POINTER MEM))))
               ((and (> ISTR 199) (< ISTR 300))
-               (list 'state ':acc (car (sottrazione ACC POINTER MEM)) ':pc (mod (+ PC 1) 100)
-                     ':mem MEM ':in IN ':out OUT ':flag (cdr (sottrazione ACC POINTER MEM))))
+               (list 'state ':acc (car (sottrazione ACC POINTER MEM)) 
+                     ':pc (mod (+ PC 1) 100) ':mem MEM ':in IN 
+                     ':out OUT ':flag (cdr (sottrazione ACC POINTER MEM))))
               ((and (> ISTR 299) (< ISTR 400))
-               (list 'state ':acc ACC ':pc (mod (+ PC 1) 100) ':mem (store ACC POINTER MEM)
+               (list 'state ':acc ACC ':pc (mod (+ PC 1) 100) 
+                     ':mem (store ACC POINTER MEM)
                      ':in IN ':out OUT ':flag FLAG))
               ((and (> ISTR 499) (< ISTR 600))
-               (list 'state ':acc (lload POINTER MEM) ':pc (mod (+ PC 1) 100) ':mem MEM
-                     ':in IN ':out OUT ':flag FLAG))
+               (list 'state ':acc (lload POINTER MEM) ':pc (mod (+ PC 1) 100) 
+                     ':mem MEM ':in IN ':out OUT ':flag FLAG))
               ((and (> ISTR 599) (< ISTR 700))
                (list 'state ':acc ACC ':pc (branch POINTER) ':mem MEM
                      ':in IN ':out OUT ':flag FLAG))
               ((and (> ISTR 699) (< ISTR 800))
-               (list 'state ':acc ACC ':pc (branch-if-zero PC ACC POINTER FLAG) ':mem MEM
-                     ':in IN ':out OUT ':flag FLAG))
+               (list 'state ':acc ACC 
+                     ':pc (branch-if-zero PC ACC POINTER FLAG) 
+                     ':mem MEM ':in IN ':out OUT ':flag FLAG))
               ((and (> ISTR 799) (< ISTR 900))
-               (list 'state ':acc ACC ':pc (branch-if-positive PC POINTER FLAG) ':mem MEM
+               (list 'state ':acc ACC 
+                     ':pc (branch-if-positive PC POINTER FLAG) ':mem MEM
                      ':in IN ':out OUT ':flag FLAG))
               ((and (= ISTR 901) (not (= (list-length IN) 0)))
-               (list 'state ':acc (car (input IN)) ':pc (mod (+ PC 1) 100) ':mem MEM
-                     ':in (cdr (input IN)) ':out OUT ':flag FLAG))
+               (list 'state ':acc (car (input IN)) ':pc (mod (+ PC 1) 100) 
+                     ':mem MEM ':in (cdr (input IN)) ':out OUT ':flag FLAG))
               ((= ISTR 902)
                (list 'state ':acc ACC ':pc (mod (+ PC 1) 100) ':mem MEM
                      ':in IN ':out (output ACC OUT) ':flag FLAG)))))))
@@ -145,7 +150,8 @@
   (cond ((= (length str) 0) (list str))
         ((>= index (length str)) (list str))
         ((equal (char str index) #\ )
-         (append (list (subseq str 0 index)) (split-core (subseq str (+ index 1)) 0)))
+         (append (list (subseq str 0 index)) 
+                 (split-core (subseq str (+ index 1)) 0)))
         (T (split-core str (+ index 1)))))
 
 (defun split (str)
@@ -181,25 +187,42 @@
 ;;; Command to Istr
 ;;; Restituisce l'istruzione numerica associata al comando assembly
 (defun command-to-instr (command pointer tags)
-  (cond ((and (equal (string-upcase (car command)) "ADD") (not (equal (cdr command) NIL)))
-         (concatenate 'string "1" (normalize (value-of (second command) tags))))
-        ((and (equal (string-upcase (car command)) "SUB") (not (equal (cdr command) NIL)))
-         (concatenate 'string "2" (normalize (value-of (second command) tags))))
-        ((and (equal (string-upcase (car command)) "STA") (not (equal (cdr command) NIL)))
-         (concatenate 'string "3" (normalize (value-of (second command) tags))))
-        ((and (equal (string-upcase (car command)) "LDA") (not (equal (cdr command) NIL)))
-         (concatenate 'string "5" (normalize (value-of (second command) tags))))
-        ((and (equal (string-upcase (car command)) "BRA") (not (equal (cdr command) NIL)))
-         (concatenate 'string "6" (normalize (value-of (second command) tags))))
-        ((and (equal (string-upcase (car command)) "BRZ") (not (equal (cdr command) NIL)))
-         (concatenate 'string "7" (normalize (value-of (second command) tags))))
-        ((and (equal (string-upcase (car command)) "BRP") (not (equal (cdr command) NIL)))
-         (concatenate 'string "8" (normalize (value-of (second command) tags))))
-        ((and (equal (string-upcase (car command)) "INP") (equal (cdr command) NIL))
+  (cond ((and (equal (string-upcase (car command)) "ADD") 
+              (not (equal (cdr command) NIL)))
+         (concatenate 'string "1" 
+                              (normalize (value-of (second command) tags))))
+        ((and (equal (string-upcase (car command)) "SUB") 
+              (not (equal (cdr command) NIL)))
+         (concatenate 'string "2" 
+                              (normalize (value-of (second command) tags))))
+        ((and (equal (string-upcase (car command)) "STA") 
+              (not (equal (cdr command) NIL)))
+         (concatenate 'string "3" 
+                              (normalize (value-of (second command) tags))))
+        ((and (equal (string-upcase (car command)) "LDA") 
+              (not (equal (cdr command) NIL)))
+         (concatenate 'string "5" 
+                              (normalize (value-of (second command) tags))))
+        ((and (equal (string-upcase (car command)) "BRA") 
+              (not (equal (cdr command) NIL)))
+         (concatenate 'string "6" 
+                              (normalize (value-of (second command) tags))))
+        ((and (equal (string-upcase (car command)) "BRZ") 
+              (not (equal (cdr command) NIL)))
+         (concatenate 'string "7" 
+                              (normalize (value-of (second command) tags))))
+        ((and (equal (string-upcase (car command)) "BRP") 
+              (not (equal (cdr command) NIL)))
+         (concatenate 'string "8" 
+                              (normalize (value-of (second command) tags))))
+        ((and (equal (string-upcase (car command)) "INP") 
+              (equal (cdr command) NIL))
          "901")
-        ((and (equal (string-upcase (car command)) "OUT") (equal (cdr command) NIL))
+        ((and (equal (string-upcase (car command)) "OUT") 
+              (equal (cdr command) NIL))
          "902")
-        ((and (equal (string-upcase (car command)) "HLT") (equal (cdr command) NIL))
+        ((and (equal (string-upcase (car command)) "HLT") 
+              (equal (cdr command) NIL))
          "000")
         ((equal (string-upcase (car command)) "DAT")
          (cond ((equal (cdr command) NIL) "000")
@@ -211,7 +234,7 @@
 ;;; Legge il file
 ;;; Restituisce una lista contenente le righe del file di testo letto
 (defun read-all-lines-helper (stream)
-  (let ((line (read-line stream NIL NIL))) ;; leggi la linea ritornando nil in caso di fine file
+  (let ((line (read-line stream NIL NIL))) 
     (when line (cons line (read-all-lines-helper stream)))))
 
 (defun read-all-lines (filename)
@@ -227,15 +250,21 @@
 ;;; Is Istr
 (defun is-istr (command)
   (is-in-list (string-upcase (car command)) 
-              (list "ADD" "SUB" "STA" "LDA" "BRA" "BRZ" "BRP" "INP" "OUT" "HLT" "DAT")))
+              (list "ADD" "SUB" "STA" "LDA" "BRA" "BRZ" 
+                    "BRP" "INP" "OUT" "HLT" "DAT")))
 
 ;;; Get Tags
 ;;; Restituisce la lista di etichette del file
 (defun get-tags (commands pc)
   (cond ((equal commands NIL) NIL)
-        (T (cond ((not (is-istr (remove-blank (split (remove-comment (car commands)))))) 
-                    (append (list (cons (string-upcase (car (remove-blank (split (remove-comment (car commands)))))) (write-to-string pc))) (get-tags (cdr commands) (+ pc 1))))
-                 (T (get-tags (cdr commands) (+ pc 1)))))))
+        (T 
+    (cond ((not 
+            (is-istr (remove-blank (split (remove-comment (car commands)))))) 
+      (append (list (cons (string-upcase 
+        (car (remove-blank (split (remove-comment (car commands)))))) 
+                          (write-to-string pc))) 
+                    (get-tags (cdr commands) (+ pc 1))))
+      (T (get-tags (cdr commands) (+ pc 1)))))))
 
 ;;; Get Mem
 ;;; Riempie il fondo della Mem con gli 0 
@@ -246,17 +275,24 @@
 ;;; Aggiunge i vari comandi assembly alla memoria
 (defun commands-to-mem (commands pointer tags)
   (cond ((equal commands NIL) NIL)
-        (T (cons (command-to-instr (remove-blank (split (remove-comment (car commands)))) pointer tags)
-                  (commands-to-mem (cdr commands) (+ pointer 1) tags)))))
+        (T (cons (command-to-instr (remove-blank (split 
+                                      (remove-comment (car commands)))) 
+                                   pointer tags)
+                 (commands-to-mem (cdr commands) (+ pointer 1) tags)))))
 
 ;;; LMC Load
 ;;; Legge il file .lmc e genera la memoria convertendola in interi
 ;;; dopo gli opportuni controlli 
 (defun lmc-load (filename)
-  (list-parse-integer (get-mem (commands-to-mem (remove-blank (read-all-lines filename)) 0 (get-tags (remove-blank (read-all-lines filename)) 0)))))
+  (list-parse-integer 
+    (get-mem (commands-to-mem (remove-blank (read-all-lines filename)) 
+                                0 (get-tags (remove-blank 
+                                              (read-all-lines filename)) 
+                                            0)))))
 
 ;;; LMC Run
 ;;; Esegue il lmc_load del file .lmc,
 ;;; e passa la memoria ottenuta allo stato iniziale dell'execution-loop.
 (defun lmc-run (filename input)
-  (execution-loop (list 'state ':acc 0 ':pc 0 ':mem (lmc-load filename) ':in input ':out '() ':flag 'NOFLAG)))
+  (execution-loop (list 'state ':acc 0 ':pc 0 ':mem (lmc-load filename) 
+                        ':in input ':out '() ':flag 'NOFLAG)))
