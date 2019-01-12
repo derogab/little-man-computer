@@ -258,18 +258,18 @@ del_blank(X, [T|Xs], Y) :-
     del_blank(X, Xs, Y2), 
     append([T], Y2, Y).
 
-%%% noInstr
+%%% no_instr
 %%% Controlla che un elemento non sia presente in una lista
-noInstr(_,[]) :- 
+no_instr(_,[]) :- 
     !.
 
-noInstr(X,[X|_]) :-
+no_instr(X,[X|_]) :-
     !,
     fail.
 
-noInstr(X,[_|T]) :- 
+no_instr(X,[_|T]) :- 
     !,
-    noInstr(X,T).
+    no_instr(X,T).
 
 %%% Exec
 %%% Esecuzione di un comando assemply
@@ -299,8 +299,8 @@ exec(FirstEmptyIndex, Row, Instruction) :-
     WordsNum = 2,
     nth0(0, Words, Elem),
     string_lower(Elem, Eleml),
-    noInstr(Eleml, ["add", "sub", "sta", "lda", "bra", "brz"]), 
-    noInstr(Eleml, ["brp", "inp", "out", "hlt", "dat"]),
+    no_instr(Eleml, ["add", "sub", "sta", "lda", "bra", "brz"]), 
+    no_instr(Eleml, ["brp", "inp", "out", "hlt", "dat"]),
     !,
     command_with_label2(Words, Instruction, FirstEmptyIndex).
 
@@ -549,8 +549,8 @@ save_labels([LastRow], Pc) :-
     proper_length(Words, WordsNum),
     WordsNum = 2,
     nth0(0, Words, Label),
-    noInstr(Label, ["add", "sub", "sta", "lda", "bra", "brz"]),
-    noInstr(Label, ["brp", "inp", "out", "hlt", "dat"]),
+    no_instr(Label, ["add", "sub", "sta", "lda", "bra", "brz"]),
+    no_instr(Label, ["brp", "inp", "out", "hlt", "dat"]),
     !, 
     string_upper(Label, LabelUpper),
     assertz(tag(LabelUpper, Pc)).
@@ -580,13 +580,13 @@ save_labels([Row|OtherRows], Pc) :-
     PcNew is Pc+1,
     save_labels(OtherRows, PcNew).                                                                                            
 
-%%% noComment
+%%% no_comment
 %%% Rimuove ogni riga di commento dalla lista di stringhe 
-noComment([], []).
+no_comment([], []).
 
-noComment([H | T], [H2| T2]) :- 
+no_comment([H | T], [H2| T2]) :- 
     remove_comment(H, H2),
-    noComment(T, T2).
+    no_comment(T, T2).
 
 %%% memg
 %%% Riempie il fondo della Mem con gli 0 
@@ -600,17 +600,18 @@ memg(L, NewMem) :-
 memg(Mem, Mem) :-
     !.
 
-%%% memToNumber
+%%% mem_to_number
 %%% Converte la lista di stringhe in lista di interi
-memToNumber(Mem, MemNumber, X) :- 
+mem_to_number(Mem, MemNumber, X) :- 
     X<100,
     nth0(X, Mem, Elem),
     number_string(Num, Elem),
     NewX is X+1,
     replace(X, Mem, Num, MemNumber2),
-    memToNumber(MemNumber2, MemNumber, NewX),!.
+    mem_to_number(MemNumber2, MemNumber, NewX),
+    !.
 
-memToNumber(Mem, Mem, _) :- 
+mem_to_number(Mem, Mem, _) :- 
     !.
 
 %%% lmc_load
@@ -622,7 +623,7 @@ lmc_load(Filename, Mem) :-
     read_string(Input, _, FileTxt),
     split_string(FileTxt, "\n", " ", Rows),
     del_blank("", Rows, ClearRows),
-    noComment(ClearRows, NoCommentList),
+    no_comment(ClearRows, NoCommentList),
     delete(NoCommentList, "", CommandList),
     proper_length(CommandList, NumberCommand),
     NumberCommand =< 100,
@@ -639,7 +640,7 @@ lmc_run(Filename, In, Output) :-
     %% Generazione della memoria
     lmc_load(Filename, Mem),
     %% Conversione memoria in interi
-    memToNumber(Mem, MemNumber, 0),
+    mem_to_number(Mem, MemNumber, 0),
     %% Pulizia delle labels
     retractall(tag(_,_)), 
     %% Esecuzione
