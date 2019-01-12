@@ -220,6 +220,7 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
     append([], In, In2),
     copy_term(Flag, Flag2).
 
+%%% Controlla che una lista non abbia valori superiori a 999
 checklist([]).
 
 checklist([H|T]) :- 
