@@ -225,20 +225,22 @@ checklist([H|T]) :-
 execution_loop(halted_state(_, _, _, _, Out, _), Out).
 
 execution_loop(state(Acc, Pc, Mem, In, Out, Flag), OutTot) :-
+    integer(Pc),
+    Pc < 100,
+    integer(Acc),
+    Acc < 1000,
     proper_length(Mem, Len),
     Len =< 100,
-    checklist(In),
-    integer(Pc),
-    integer(Acc),
     member(Flag, [flag, noflag]),
+    checklist(Mem),
+    checklist(In),
     one_instruction(state(Acc, Pc, Mem, In, Out, Flag), NewState),
-    Pc < 100,
     !,
     execution_loop(NewState, OutTot).
 
 %%% Remove Comment
 %%% Rimuove i commenti da una stringa 
-remove_comment(Row, Command) :- 
+remove_comment(Row, Command) :- %% pulizia labels
     split_string(Row, "//", " ", X),
     nth0(0, X, Command, _).
 
