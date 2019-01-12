@@ -300,7 +300,6 @@
 
 ;;; LMC Run
 ;;; Esegue il lmc_load del file .lmc,
-;;; Controllando che il file non abbia più di cento istruzioni
 ;;; e passa la memoria ottenuta allo stato iniziale dell'execution-loop.
 (defun lmc-run (filename input)
   (execution-loop (list 'state ':acc 0 ':pc 0 ':mem (lmc-load filename)
