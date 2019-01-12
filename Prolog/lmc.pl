@@ -3,18 +3,15 @@
 %%%% Anno accademico 2018-2019
 %%%% Appello di Gennaio 2019
 
-%%% Istruzioni in memoria
-
 %%% Addizione
 %%% Instruction: 1xx 
-
-
 addizione(Acc, Pointer, Mem, X, flag) :- 
     nth0(Pointer, Mem, Value, _),
     Y is Acc + Value,
     X is ((Acc + Value) mod 1000),
     Y > 999,
     !.
+
 addizione(Acc, Pointer, Mem, X, noflag) :- 
     nth0(Pointer, Mem, Value, _),
     Y is Acc+Value,
@@ -23,13 +20,13 @@ addizione(Acc, Pointer, Mem, X, noflag) :-
 
 %%% Sottrazione
 %%% Instruction: 2xx
-
 sottrazione(Acc, Pointer, Mem, X, flag) :- 
     nth0(Pointer, Mem, Value, _),
     Y is Acc-Value,
     X is ((Acc-Value)mod 1000),
     Y < 0,
     !.
+
 sottrazione(Acc, Pointer, Mem, X, noflag) :- 
     nth0(Pointer, Mem, Value, _),
     Y is Acc-Value,
@@ -38,25 +35,21 @@ sottrazione(Acc, Pointer, Mem, X, noflag) :-
 
 %%% Store
 %%% Instruction: 3xx
-
 store(Acc, Pointer, MemIn, MemOut) :- 
     nth0(Pointer, MemIn, _, Varmem),
     nth0(Pointer, MemOut, Acc, Varmem).
 
 %%% Load
 %%% Instruction: 5xx
-
 load(Acc, Pointer, MemIn) :- 
     nth0(Pointer, MemIn, Acc, _).
 
 %%% Branch
 %%% Instruction: 6xx
-
 branch(Pc, Pc).
 
 %%% Branch if zero
 %%% Instruction: 7xx
-
 branchifzero(_, 0, Pointer, noflag, Pointer) :- 
     !.
 
@@ -68,39 +61,34 @@ branchifzero(Pc, _, _, flag, NewPc) :-
 
 %%% Branch if positive
 %%% Instruction: 8xx
-
 branchifpositive(_, Pointer, noflag, Pointer) :- 
     !.
+
 branchifpositive(Pc, _, flag, NewPc) :- 
     NewPc is ((Pc + 1) mod 100).
 
 %%% Input
 %%% Instruction: 901
-
 input(Acc, [Acc|NewQueueIn], NewQueueIn).
 
 %%% Output
 %%% Instruction: 902
-
 output(Acc, QueueOut, NewQueueOut) :- 
     append(QueueOut, [Acc], NewQueueOut).
 
 %%% Little Man Computer
 
 %%% Istruzione in memoria
-
 instr_in_mem(Pc, Mem, Instruction) :- 
     nth0(Pc, Mem, Instruction, _).
 
 %%% Puntatore nell'istruzione
-
 extract_pointer(I, X) :- 
     X is (I mod 100).
 
 %%% One Instruction
 %%% Passaggio da uno stato iniziale ad uno stato finale
 %%% a seconda del valore dell'opcode (Istr)
-
 one_instruction(state(Acc, Pc, Mem, In, Out, Flag), 
                 halted_state(Acc, Pc, Mem, In, Out, Flag)) :- 
     instr_in_mem(Pc, Mem, Istr),
@@ -220,19 +208,20 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
     append([], In, In2),
     copy_term(Flag, Flag2).
 
+%%% Check List
 %%% Controlla che una lista non abbia valori superiori a 999
+%%% E che abbia solo valori positivi
 checklist([]).
 
 checklist([H|T]) :- 
     H =< 999,
     H >= 0,
+    !,
     checklist(T).
-
 
 %%% Execution Loop
 %%% Cicla dallo stato iniziale allo stato finale
 %%% Restituisce la coda di output quando viene raggiunto uno stato di halt
-
 execution_loop(halted_state(_, _, _, _, Out, _), Out).
 
 execution_loop(state(Acc, Pc, Mem, In, Out, Flag), OutTot) :-
@@ -247,18 +236,14 @@ execution_loop(state(Acc, Pc, Mem, In, Out, Flag), OutTot) :-
     !,
     execution_loop(NewState, OutTot).
 
-%%% Istruzioni Assembly
-
 %%% Remove Comment
 %%% Rimuove i commenti da una stringa 
-
 remove_comment(Row, Command) :- 
     split_string(Row, "//", " ", X),
     nth0(0, X, Command, _).
 
 %%% del_blank
 %%% Elimina tutti gli elementi uguali alla stringa vuota da una lista
-
 del_blank(_, [], []) :- 
     !.
 
@@ -273,7 +258,6 @@ del_blank(X, [T|Xs], Y) :-
 
 %%% noInstr
 %%% Controlla che un elemento non sia presente in una lista
-
 noInstr(_,[]) :- 
     !.
 
@@ -289,7 +273,6 @@ noInstr(X,[_|T]) :-
 %%% Esecuzione di un comando assemply
 %%% differenziato a seconda del numero di parole contenute
 %%% e dalla eventuale presenza di label 
-
 exec(_, Row, _) :- 
     remove_comment(Row, Command),
     split_string(Command, " ", "", Y),
@@ -340,7 +323,6 @@ exec(FirstEmptyIndex, Row, Instruction) :-
 %%% Normalize
 %%% Restituisce qualunque numero in 2 cifre
 %%% aggiungendo uno 0 prima nel caso sia un numero compreso tra 0 e 10
-
 normalize(Number, NumberNorm) :- 
     string_length(Number, Leng),
     Leng = 1,
@@ -352,7 +334,6 @@ normalize(Number, Number).
 %%% Single Command
 %%% Restituisce l'istruzione numerica associata al comando assembly
 %%% nel caso di un comando con una singola parola
-
 single_command([Command], Instruction) :- 
     string_lower(Command, CommandLower),
     CommandLower = "inp",
@@ -381,7 +362,6 @@ single_command([Command], Instruction) :-
 %%% Restituisce l'istruzione numerica associata al comando assembly
 %%% nel caso di un comando con 2 parole 
 %%% (label + singolo comando oppure comando + valore)
- 
 command([Command, Value], Instruction) :- 
     number_string(_, Value),
     string_lower(Command, CommandLower), 
@@ -513,7 +493,6 @@ command([Command, Value], Instruction) :-
 %%% Restituisce l'istruzione numerica associata al comando assembly
 %%% nel caso di un comando con 3 parole
 %%% (label + comando + valore)
-
 command_with_label([_, Command, Value], Instruction, _) :- 
     string_lower(Command, CommandLower),  
     command([CommandLower, Value], Instruction).
@@ -525,14 +504,12 @@ command_with_label2([_, Command], Instruction, _) :-
 %%% Replace
 %%% Sostituisce l'elemento X nella lista L in posizione I
 %%% nel parametro L2
-
 replace(X, L, I, L2) :- 
     nth0(X, L, _, L3), 
     nth0(X, L2, I, L3).
 
 %%% Row to Mem
 %%% Richiama ricorsivamente exec riempiendo la memoria
-
 row_to_mem([], [], 0, []) :- 
     !.
 
@@ -552,7 +529,6 @@ row_to_mem([Row|OtherRows], Mem, Pc, MemOut) :-
 %%% Save Labels
 %%% Salva tutte le label presenti nel file .lmc
 %%% aggiungendoli con gli assert alla base di conoscenza 
-
 save_labels([], 0) :- 
     !.
 
@@ -602,10 +578,8 @@ save_labels([Row|OtherRows], Pc) :-
     PcNew is Pc+1,
     save_labels(OtherRows, PcNew).                                                                                            
 
-
 %%% noComment
 %%% Rimuove ogni riga di commento dalla lista di stringhe 
-
 noComment([], []).
 
 noComment([H | T], [H2| T2]) :- 
@@ -614,7 +588,6 @@ noComment([H | T], [H2| T2]) :-
 
 %%% memg
 %%% Riempie il fondo della Mem con gli 0 
-
 memg(L, NewMem) :- 
     proper_length(L, X),
     X<100,
@@ -627,7 +600,6 @@ memg(Mem, Mem) :-
 
 %%% memToNumber
 %%% Converte la lista di stringhe in lista di interi
-
 memToNumber(Mem, MemNumber, X) :- 
     X<100,
     nth0(X, Mem, Elem),
@@ -643,7 +615,6 @@ memToNumber(Mem, Mem, _) :-
 %%% Legge il file .lmc e genera la memoria
 %%% dopo gli opportuni controlli 
 %%% (rimozione commenti, salvataggio e sostituzione label)
-
 lmc_load(Filename, Mem) :- 
     open(Filename, read, Input),
     read_string(Input, _, FileTxt),
@@ -662,10 +633,13 @@ lmc_load(Filename, Mem) :-
 %%% converte gli elementi della memoria in numeri interi
 %%% e la passa come memoria dello stato iniziale dell'execution_loop.
 %%% Infine rimuove tutte le label aggiunte alla base di conoscenza
-
 lmc_run(Filename, In, Output) :- 
+    %% Generazione della memoria
     lmc_load(Filename, Mem),
+    %% Conversione memoria in interi
     memToNumber(Mem, MemNumber, 0),
+    %% Pulizia delle labels
+    retractall(tag(_,_)), 
+    %% Esecuzione
     execution_loop(state(0, 0, MemNumber, In, [], noflag), Output),
-    retractall(tag(_,_)),
     !.
