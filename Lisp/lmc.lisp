@@ -10,6 +10,12 @@
       (append (list elem) (cdr list))
       (append (list (car list)) (repl (cdr list) (- n 1) elem))))
 
+;;; Is In List
+(defun is-in-list (elem list)
+  (cond ((equal elem (car list)) T)
+        ((equal list NIL) NIL)
+        (T (is-in-list elem (cdr list)))))
+
 ;;; List Parse Integer
 ;;; Converte tutti gli elementi numerici della lista in interi
 (defun list-parse-integer (l)
@@ -105,9 +111,6 @@
                (list 'state ':acc ACC ':pc (mod (+ PC 1) 100) 
                      ':mem (store ACC POINTER MEM)
                      ':in IN ':out OUT ':flag FLAG))
-              ((and (> ISTR 399) (< ISTR 500)) 
-                (list 'halted-state ':acc ACC ':pc PC ':mem MEM 
-                      ':in IN ':out OUT ':flag FLAG ))
               ((and (> ISTR 499) (< ISTR 600))
                (list 'state ':acc (lload POINTER MEM) ':pc (mod (+ PC 1) 100) 
                      ':mem MEM ':in IN ':out OUT ':flag FLAG))
@@ -122,27 +125,26 @@
                (list 'state ':acc ACC 
                      ':pc (branch-if-positive PC POINTER FLAG) ':mem MEM
                      ':in IN ':out OUT ':flag FLAG))
-               ((= ISTR 900) 
-                (list 'halted-state ':acc ACC ':pc PC ':mem MEM 
-                      ':in IN ':out OUT ':flag FLAG ))
-               ((and (= ISTR 901) (= (list-length IN) 0)) 
-                (list 'halted-state ':acc ACC ':pc PC ':mem MEM 
-                      ':in IN ':out OUT ':flag FLAG ))
-               ((= ISTR 901) 
-                (list 'state ':acc (car (input IN)) ':pc (+ PC 1) 
-                      ':mem MEM ':in (cdr (input IN)) ':out OUT ':flag FLAG ))
-               ((= ISTR 902) 
-                (list 'state ':acc ACC ':pc (+ PC 1) ':mem MEM 
-                      ':in IN ':out (output ACC OUT) ':flag FLAG ))
-               ((and (> ISTR 902) (< ISTR 1000)) 
-                (list 'halted-state ':acc ACC ':pc PC ':mem MEM 
-                      ':in IN ':out OUT ':flag FLAG )))))))
+              ((and (= ISTR 901) (not (= (list-length IN) 0)))
+               (list 'state ':acc (car (input IN)) ':pc (mod (+ PC 1) 100) 
+                     ':mem MEM ':in (cdr (input IN)) ':out OUT ':flag FLAG))
+              ((= ISTR 902)
+               (list 'state ':acc ACC ':pc (mod (+ PC 1) 100) ':mem MEM
+                     ':in IN ':out (output ACC OUT) ':flag FLAG)))))))
+
+;;; Controlla che una lista non abbia valori superiori a 999
+(defun checklist (l)
+  (cond ((equal l NIL) T)
+    (T (if (<= ( car l) 999) (checklist (cdr l))))))
 
 ;;; Execution Loop
-;;; Cicla dallo stato iniziale allo stato finale
+;;; Cicla dallo stato iniziale allo stato finale 
+;;; Dopo aver controllato lo stato inziale
 ;;; Restituisce la coda di output quando viene raggiunto uno stato di halt
 (defun execution-loop (state)
-  (cond ((> (list-length (nth 6 state)) 100) NIL) ; mem troppo grande (> 100)
+  (cond ((or (> (list-length (nth 6 state)) 100) (not (integerp (nth 2 state))) 
+             (not (integerp (nth 4 state))) (not (checklist (nth 8 state))) 
+             (not (is-in-list (nth 12 state) '(FLAG NOFLAG)))) NIL) 
         ((equal state NIL) NIL) ; istruzione errata
         ((and (< (nth 4 state) 100) (equal (nth 0 state) 'state))
          (execution-loop (one-instruction state)))
@@ -253,12 +255,6 @@
   (with-open-file (f filename :direction :input)
                   (read-all-lines-helper f)))
 
-;;; Is In List
-(defun is-in-list (elem list)
-  (cond ((equal elem (car list)) T)
-        ((equal list NIL) NIL)
-        (T (is-in-list elem (cdr list)))))
-
 ;;; Is Istr
 (defun is-istr (command)
   (is-in-list (string-upcase (car command)) 
@@ -304,7 +300,8 @@
 
 ;;; LMC Run
 ;;; Esegue il lmc_load del file .lmc,
+;;; Controllando che il file non abbia più di cento istruzioni
 ;;; e passa la memoria ottenuta allo stato iniziale dell'execution-loop.
 (defun lmc-run (filename input)
-  (execution-loop (list 'state ':acc 0 ':pc 0 ':mem (lmc-load filename) 
+  (execution-loop (list 'state ':acc 0 ':pc 0 ':mem (lmc-load filename)
                         ':in input ':out '() ':flag 'NOFLAG)))
