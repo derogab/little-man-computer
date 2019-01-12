@@ -11,6 +11,7 @@
       (append (list (car list)) (repl (cdr list) (- n 1) elem))))
 
 ;;; Is In List
+;;; Restituisce T se un elemento è nella lista
 (defun is-in-list (elem list)
   (cond ((equal elem (car list)) T)
         ((equal list NIL) NIL)
