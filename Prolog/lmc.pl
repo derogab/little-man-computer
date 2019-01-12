@@ -108,27 +108,6 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
     Istr < 100,
     !.
 
-one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
-                halted_state(Acc, Pc, Mem, In, Out, Flag)) :- 
-    instr_in_mem(Pc, Mem, Istr),
-    Istr >= 400,
-    Istr < 500,
-    !.
-
-one_instruction(state(Acc, Pc, Mem, [], Out, Flag),
-                halted_state(Acc, Pc, Mem, [], Out, Flag)) :- 
-    instr_in_mem(Pc, Mem, Istr),
-    Istr = 901,    
-    !.
- 
-one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
-                halted_state(Acc, Pc, Mem, In, Out, Flag)) :- 
-    instr_in_mem(Pc, Mem, Istr),
-    Istr >= 900,
-    Istr \= 901,
-    Istr \= 902,
-    !.
-    
 one_instruction(state(Acc, Pc, Mem, In, Out, _), 
                 state(Acc2, Pc2, Mem2, In2, Out2, Flag2)) :- 
     instr_in_mem(Pc, Mem, Istr),
@@ -165,26 +144,7 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
     append([], In, In2),
     append([], Out, Out2),
     copy_term(Flag, Flag2).
-one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
-                halted_state(Acc, Pc, Mem, In, Out, Flag)) :- 
-    instr_in_mem(Pc, Mem, Istr),
-    Istr >= 400,
-    Istr < 500,
-    !.
 
-one_instruction(state(Acc, Pc, Mem, [], Out, Flag),
-                halted_state(Acc, Pc, Mem, [], Out, Flag)) :- 
-    instr_in_mem(Pc, Mem, Istr),
-    Istr = 901,    
-    !.
- 
-one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
-                halted_state(Acc, Pc, Mem, In, Out, Flag)) :- 
-    instr_in_mem(Pc, Mem, Istr),
-    Istr >= 900,
-    Istr \= 901,
-    Istr \= 902,
-    !.
 one_instruction(state(_, Pc, Mem, In, Out, Flag), 
                 state(Acc2, Pc2, Mem2, In2, Out2, Flag2)) :- 
     instr_in_mem(Pc, Mem, Istr),
@@ -260,6 +220,14 @@ one_instruction(state(Acc, Pc, Mem, In, Out, Flag),
     append([], In, In2),
     copy_term(Flag, Flag2).
 
+checklist([]).
+
+checklist([H|T]) :- 
+    H =< 999,
+    H >= 0,
+    checklist(T).
+
+
 %%% Execution Loop
 %%% Cicla dallo stato iniziale allo stato finale
 %%% Restituisce la coda di output quando viene raggiunto uno stato di halt
@@ -269,6 +237,9 @@ execution_loop(halted_state(_, _, _, _, Out, _), Out).
 execution_loop(state(Acc, Pc, Mem, In, Out, Flag), OutTot) :-
     proper_length(Mem, Len),
     Len =< 100,
+    checklist(In),
+    integer(Pc),
+    integer(Acc),
     one_instruction(state(Acc, Pc, Mem, In, Out, Flag), NewState),
     Pc < 100,
     !,
@@ -678,6 +649,8 @@ lmc_load(Filename, Mem) :-
     del_blank("", Rows, ClearRows),
     noComment(ClearRows, NoCommentList),
     delete(NoCommentList, "", CommandList),
+    proper_length(CommandList, NumberCommand),
+    NumberCommand =< 100,
     save_labels(CommandList, 0),
     memg([], MemV),
     row_to_mem(CommandList, MemV, 0, Mem).
