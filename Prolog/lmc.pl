@@ -240,6 +240,7 @@ execution_loop(state(Acc, Pc, Mem, In, Out, Flag), OutTot) :-
     checklist(In),
     integer(Pc),
     integer(Acc),
+    member(Flag, [flag, noflag]),
     one_instruction(state(Acc, Pc, Mem, In, Out, Flag), NewState),
     Pc < 100,
     !,
