@@ -132,6 +132,7 @@
                (list 'state ':acc ACC ':pc (mod (+ PC 1) 100) ':mem MEM
                      ':in IN ':out (output ACC OUT) ':flag FLAG)))))))
 
+;;; Check List
 ;;; Controlla che una lista non abbia valori superiori a 999
 (defun checklist (l)
   (cond ((equal l NIL) T)
@@ -142,15 +143,23 @@
 ;;; Dopo aver controllato lo stato inziale
 ;;; Restituisce la coda di output quando viene raggiunto uno stato di halt
 (defun execution-loop (state)
-  (cond ((or (> (list-length (nth 6 state)) 100) (not (integerp (nth 2 state))) 
-             (not (integerp (nth 4 state))) (not (checklist (nth 8 state))) 
-             (not (is-in-list (nth 12 state) '(FLAG NOFLAG)))) NIL) 
+  (cond ((not (equal (nth 1 state) ':acc)) NIL)
+        ((not (integerp (nth 2 state))) NIL) ; check acc
+        ((not (equal (nth 3 state) ':pc)) NIL)
+        ((not (integerp (nth 4 state))) NIL) ; check pc
+        ((not (equal (nth 5 state) ':mem)) NIL)
+        ((> (list-length (nth 6 state)) 100) NIL) ; check mem length
+        ((not (checklist (nth 6 state))) NIL) ; check mem
+        ((not (equal (nth 7 state) ':in)) NIL)
+        ((not (checklist (nth 8 state))) NIL) ; check input
+        ((not (equal (nth 9 state) ':out)) NIL)
+        ((not (equal (nth 11 state) ':flag)) NIL)
+        ((not (is-in-list (nth 12 state) '(FLAG NOFLAG))) NIL) ; check flag
         ((equal state NIL) NIL) ; istruzione errata
         ((and (< (nth 4 state) 100) (equal (nth 0 state) 'state))
          (execution-loop (one-instruction state)))
         ((equal (nth 0 state) 'halted-state) 
           (nth 10 state))))
-
 
 ;;; Remove Comment
 ;;; Rimuove i commenti da una stringa 
