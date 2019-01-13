@@ -9,15 +9,15 @@ Il file lmc.lisp rappresenta una versione del Little Man Computer
 sviluppata in linguaggio funzionale.
 
 
-PREDICATI
-Documentati nei commenti presenti sul lmc.lisp
+FUNZIONI
+Documentate nei commenti presenti sul lmc.lisp
 
     UTILS
     - repl 
     - is-in-list
     - list-parse-integer
     
-    PREDICATI DEL SIMULATORE
+    FUNZIONI DEL SIMULATORE
     Permettono l'esecuzione delle istruzioni presenti in memoria 
     attraverso il passaggio tra i vari stati
 
@@ -34,7 +34,7 @@ Documentati nei commenti presenti sul lmc.lisp
     - checklist
     - execution-loop
 
-    PREDICATI DEL PARSER
+    FUNZIONI DEL PARSER
     Preso un file di testo sorgente contenente istruzioni assembly
     del Little Man Computer genera la memoria.
 
@@ -55,7 +55,7 @@ Documentati nei commenti presenti sul lmc.lisp
     - commands-to-mem 
     - lmc-load
 
-    PREDICATI DI ESECUZIONE
+    FUNZIONI DI ESECUZIONE
     Fa generare la memoria alle istruzioni del parser e la utilizza 
     per generare lo stato iniziale dal quale il simulatore inizia
     l'esecuzione        
