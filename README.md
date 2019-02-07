@@ -433,3 +433,8 @@ Un modo per generare uno "stato" iniziale è di usare la funzione `make-list`:
 ?- (make-list 100 :initial-element 0)
 (0 0 0 0 ...) ; 100 zeri.
 ```
+
+## CREDITI
+
+| [<img src="https://avatars.githubusercontent.com/u/31136677?v=4" width="100px;" alt="dlcgold"/><br /><sub><b>dlcgold</b></sub>](https://github.com/dlcgold) | [<img src="https://avatars.githubusercontent.com/u/4183824?v=4" width="100px;" alt="derogab"/><br /><sub><b>derogab</b></sub>](https://github.com/derogab) | 
+| :---: | :---: |
