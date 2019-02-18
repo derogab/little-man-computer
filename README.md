@@ -22,7 +22,7 @@ Il LMC è composto dalle seguenti componenti:
 - Un **registro accumulatore** (inizialmente zero).
 
 - Un **program counter**. Il program counter contiene l'indirizzo dell'istruzione da eseguire ed è inizialmente zero. Se _non_ viene sovrascritto da altre istruzioni (salti condizionali e non condizionali) viene incrementato di uno ogni volta che un'istruzione viene eseguita. Se
-raggiunge il valore 999 e viene incrementato il valore successivo è zero.
+raggiunge il valore 99 e viene incrementato il valore successivo è zero.
 
 - Una **coda di input**. Questa coda contiene tutti i valori forniti in input al LMC, che sono necessariamente numeri compresi tra 0 e 999. Ogni volta che l'LMC legge un valore di input esso viene eliminato dalla coda.
 
@@ -364,7 +364,7 @@ lo stato deve essere rappresentato usando il funtore `HALTED-STATE` invece di `S
 
 Nella lista qui sopra gli argomenti sono i seguenti:
 - Acc. Un numero tra 0 e 999 che rappresenta il valore contenuto nell'accumulatore.
-- Pc. Un numero tra 0 e 999 che rappresenta il valore contenuto nel program counter.
+- Pc. Un numero tra 0 e 99 che rappresenta il valore contenuto nel program counter.
 - Mem. Una lista di 100 numeri tutti compresi tra 0 e 999 che rappresenta il contenuto della
 memoria del LMC.
 - In. Una lista di numeri tra 0 e 999 che rappresenta la coda di input del LMC.
