@@ -250,13 +250,9 @@ Le seguenti istruzioni sono quindi tutte equivalenti:
 
 ```
 ADD 3
-
 Add 3
-
 add 3 // Questo è un commento
-
 ADD 3 // Aggiunte il valore della cella 3 all'accumulatore
-
 aDD 3
 ```
 
@@ -283,7 +279,7 @@ halted_state(Acc, Pc, Mem, In, Out, Flag).
 
 Nel termine composto gli argomenti sono i seguenti:
 - Acc. Un numero tra 0 e 999 che rappresenta il valore contenuto nell'accumulatore.
-- Pc. Un numero tra 0 e 999 che rappresenta il valore contenuto nel program counter.
+- Pc. Un numero tra 0 e 99 che rappresenta il valore contenuto nel program counter.
 - Mem. Una lista di 100 numeri tutti compresi tra 0 e 999 che rappresenta il contenuto della memoria del LMC.
 - In. Una lista di numeri tra 0 e 999 che rappresenta la coda di input del LMC.
 - Out. Una lista di numeri tra 0 e 999 che rappresenta la coda di output del LMC.
